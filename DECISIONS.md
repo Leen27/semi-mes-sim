@@ -108,6 +108,27 @@
   - TypeScript 6 的 `baseUrl` 弃用需要所有 `paths` 使用相对路径
   - Babylon.js 从 7 升级到 9 是大版本跳跃，需关注后续 breaking changes
 
+## ADR-010：引入运行时与过程可观测性（Lecture 11）
+
+- **状态**: 已接受
+- **日期**: 2026-06-07
+- **背景**: Agent 执行任务时缺乏运行时可见性，导致「正确」与「看起来正确」无法区分、评估变成主观判断、跨会话交接时需要 30-50% 的冗余诊断时间。Lecture 11 指出可观测性是 harness 的架构属性，必须从设计之初就内置。
+- **决策**:
+  1. 创建 `scripts/harness-trace.sh` — 任务追踪记录器，每次会话生成结构化 JSON trace
+  2. 创建 `.harness/contracts/template.md` — Sprint Contract 模板，编码前对齐范围、验证标准、排除项
+  3. 创建 `.harness/rubrics/default.json` — 五维度 Evaluator Rubric（代码正确性、架构合规性、测试覆盖、文档同步、端到端验证）
+  4. 创建 `scripts/evaluate-feature.sh` — 基于 Rubric 的结构化评分工具
+  5. 增强 `verify-layers.sh` — 自动集成 trace 记录，每层验证结果和耗时写入 trace
+- **拒绝的替代方案**:
+  - 依赖 agent 自行打印日志（agent 不知道自己不知道什么，格式不一致，无法系统分析）
+  - 保持「凭感觉评估」（不同 evaluator 对同一产出给出 wildly different 评估，质量评估不可复现）
+- **后果**:
+  - 每次会话留下可回放、可分析的决策路径记录
+  - 新会话通过阅读最新 trace 可在 3 分钟内重建上一轮状态
+  - 评估从主观印象转化为基于证据的结构化评分
+  - Sprint Contract 防止范围蔓延和「可预见性 reject」
+  - 构建产物增加 `.harness/traces/` 目录（git 应跟踪这些文件以支持跨会话交接）
+
 ## ADR-009：将架构规则转化为可执行检查（Lecture 10）
 
 - **状态**: 已接受

@@ -1,0 +1,101 @@
+{
+  "traceVersion": "1.0.0",
+  "featureId": "F002",
+  "startedAt": "2026-06-07T11:42:12Z",
+  "endedAt": null,
+  "status": "running",
+  "sessionInfo": {
+    "pwd": "/Users/linjq/code/semi-mes-sim",
+    "gitBranch": "main",
+    "gitCommit": "926d733"
+  },
+  "events": [
+    {
+      "timestamp": "2026-06-07T11:42:12Z",
+      "type": "evaluation_start",
+      "data": {
+        "featureId": "F002",
+        "featureName": "MES 核心数据模型"
+      }
+    }
+  ],
+  "layers": {
+    "layer0": {
+      "name": "Architecture Boundaries",
+      "status": "pending",
+      "details": null,
+      "durationMs": null
+    },
+    "layer1": {
+      "name": "Syntax & Static Analysis",
+      "status": "pending",
+      "details": null,
+      "durationMs": null
+    },
+    "layer2": {
+      "name": "Runtime Behavior",
+      "status": "pending",
+      "details": null,
+      "durationMs": null
+    },
+    "layer3": {
+      "name": "System-Level Integration",
+      "status": "pending",
+      "details": null,
+      "durationMs": null
+    }
+  },
+  "verificationCommands": [],
+  "errors": [],
+  "summary": null,
+  "scorecard": {
+    "timestamp": "2026-06-07T11:42:14.514Z",
+    "dimensions": [
+      {
+        "id": "code-correctness",
+        "name": "代码正确性",
+        "grade": "A",
+        "score": 4,
+        "weightedScore": 1.2,
+        "reason": "所有 verificationCommand 通过"
+      },
+      {
+        "id": "architecture-compliance",
+        "name": "架构合规性",
+        "grade": "A",
+        "score": 4,
+        "weightedScore": 1,
+        "reason": "功能已达到 passing 状态"
+      },
+      {
+        "id": "test-coverage",
+        "name": "测试覆盖",
+        "grade": "D",
+        "score": 1,
+        "weightedScore": 0.2,
+        "reason": "无测试证据"
+      },
+      {
+        "id": "documentation-sync",
+        "name": "文档同步",
+        "grade": "C",
+        "score": 2,
+        "weightedScore": 0.3,
+        "reason": "无显式文档验证项"
+      },
+      {
+        "id": "end-to-end-validation",
+        "name": "端到端验证",
+        "grade": "C",
+        "score": 2,
+        "weightedScore": 0.2,
+        "reason": "无端到端验证项"
+      }
+    ],
+    "overall": {
+      "grade": "C",
+      "label": "部分通过",
+      "score": 2.9000000000000004
+    }
+  }
+}

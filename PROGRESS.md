@@ -9,8 +9,8 @@
 
 ## 当前状态
 
-- **最新 commit**: `HEAD`（Lecture 10 架构边界检查引入）
-- **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅
+- **最新 commit**: `HEAD`（Lecture 11 可观测性基础设施引入）
+- **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅ / observability ✅
 - **活跃分支**: `main`
 - **VCR（验证完成率）**: 5/5 = 100%
 - **Back-Pressure（剩余压力）**: 5/10 = 50%（5 not_started / 10 total）
@@ -46,6 +46,13 @@
   - 所有错误消息包含 WHAT/WHY/FIX（面向 agent 的自校正设计）
   - `verify-layers.sh` 增强为四层：Layer 0 架构边界 → Layer 1 静态 → Layer 2 运行时 → Layer 3 端到端（跨组件符号检测）
   - ADR-009 记录决策
+- [x] **运行时与过程可观测性**（Lecture 11）
+  - `scripts/harness-trace.sh`：任务追踪记录器，生成结构化 JSON trace（.harness/traces/）
+  - `.harness/contracts/template.md`：Sprint Contract 模板，编码前对齐范围与验收标准
+  - `.harness/rubrics/default.json`：五维度 Evaluator Rubric（代码正确性 30%、架构合规性 25%、测试覆盖 20%、文档同步 15%、端到端验证 10%）
+  - `scripts/evaluate-feature.sh`：基于 Rubric 的结构化评分工具
+  - `verify-layers.sh` 自动集成 trace 记录（每层结果、耗时、错误）
+  - ADR-010 记录决策
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置

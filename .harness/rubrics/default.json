@@ -1,0 +1,78 @@
+{
+  "rubricVersion": "1.0.0",
+  "description": "Default evaluator rubric for Semi-MES-Sim features. Based on Lecture 11: scoring rubrics make evaluation reproducible.",
+  "dimensions": [
+    {
+      "id": "code-correctness",
+      "name": "代码正确性",
+      "description": "代码是否按预期工作，测试是否通过",
+      "weight": 0.3,
+      "levels": {
+        "A": { "score": 4, "label": "优秀", "criteria": "所有测试通过，包括边界情况和错误路径" },
+        "B": { "score": 3, "label": "合格", "criteria": "主流程测试通过，无明显 bug" },
+        "C": { "score": 2, "label": "部分通过", "criteria": "部分测试失败，但主流程可用" },
+        "D": { "score": 1, "label": "不合格", "criteria": "构建失败或主流程测试失败" }
+      }
+    },
+    {
+      "id": "architecture-compliance",
+      "name": "架构合规性",
+      "description": "是否遵守 AGENTS.md 和 ARCHITECTURE.md 的约束",
+      "weight": 0.25,
+      "levels": {
+        "A": { "score": 4, "label": "完全合规", "criteria": "完全符合所有架构约束，verify-architecture.sh 通过" },
+        "B": { "score": 3, "label": "基本合规", "criteria": "符合核心约束，仅有命名/格式等轻微偏差" },
+        "C": { "score": 2, "label": "部分偏离", "criteria": "存在可修复的架构偏离（如 import 路径不规范）" },
+        "D": { "score": 1, "label": "严重违规", "criteria": "违反核心架构边界（如 core 引入 Vue）" }
+      }
+    },
+    {
+      "id": "test-coverage",
+      "name": "测试覆盖",
+      "description": "测试的深度和广度",
+      "weight": 0.2,
+      "levels": {
+        "A": { "score": 4, "label": "全面", "criteria": "主流程 + 边界情况 + 错误路径均有测试" },
+        "B": { "score": 3, "label": "充分", "criteria": "主流程和关键边界情况有测试" },
+        "C": { "score": 2, "label": "不足", "criteria": "仅有主流程测试或测试骨架" },
+        "D": { "score": 1, "label": "缺失", "criteria": "无新增测试或测试全部跳过" }
+      }
+    },
+    {
+      "id": "documentation-sync",
+      "name": "文档同步",
+      "description": "代码变更是否同步到相关文档",
+      "weight": 0.15,
+      "levels": {
+        "A": { "score": 4, "label": "完全同步", "criteria": "ARCHITECTURE.md + AGENTS.md + PROGRESS.md + feature_list.json 全部更新" },
+        "B": { "score": 3, "label": "基本同步", "criteria": "ARCHITECTURE.md 和 feature_list.json 已更新" },
+        "C": { "score": 2, "label": "部分同步", "criteria": "仅更新了代码，文档遗漏" },
+        "D": { "score": 1, "label": "未同步", "criteria": "未更新任何文档" }
+      }
+    },
+    {
+      "id": "end-to-end-validation",
+      "name": "端到端验证",
+      "description": "跨组件集成验证是否通过",
+      "weight": 0.1,
+      "levels": {
+        "A": { "score": 4, "label": "完全通过", "criteria": "Layer 3 全部通过，跨组件符号检测正常" },
+        "B": { "score": 3, "label": "基本通过", "criteria": "Layer 3 通过，有非关键警告" },
+        "C": { "score": 2, "label": "部分通过", "criteria": "Layer 3 有跳过项但关键检查通过" },
+        "D": { "score": 1, "label": "失败", "criteria": "Layer 3 关键检查失败" }
+      }
+    }
+  ],
+  "scoring": {
+    "method": "weighted-average",
+    "thresholds": {
+      "pass": 3.0,
+      "excellent": 3.5
+    }
+  },
+  "notes": [
+    "评分基于 evidence（可执行的验证命令结果），不是主观印象",
+    "任一维度为 D 时，整体评级不得超过 B",
+    "架构合规性为 D 时，整体评级直接为 D（一票否决）"
+  ]
+}

@@ -62,6 +62,12 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 25. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
 26. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
 
+### 可观测性（Lecture 11 — 可观测性是 Harness 的架构属性）
+
+27. **每次会话必须生成 Task Trace** — 使用 `scripts/harness-trace.sh` 记录会话的完整决策路径。trace 文件位于 `.harness/traces/`，是会话交接的关键产物
+28. **每个功能必须通过 Evaluator Rubric 评分** — 不是"看起来对了"，而是五个维度（代码正确性、架构合规性、测试覆盖、文档同步、端到端验证）的结构化评分
+29. **跨会话交接必须包含 trace 文件** — 新会话通过阅读最新 trace 文件，可在 3 分钟内重建上一轮状态，避免 30-50% 的冗余诊断时间
+
 ## 目录职责
 
 | 目录 | 职责 | 禁止事项 |
@@ -137,9 +143,11 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 - [工具链配置](docs/toolchain.md) — **修改 ESLint、TypeScript、构建脚本时必读**
 - [编码规范](docs/coding-standards.md) — **编写代码时参考**
 - [启动就绪清单](docs/startup-readiness.md) — **首次接入仓库时必读**
-- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**（含端到端验证层级、审查反馈提升）
+- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**（含端到端验证层级、审查反馈提升、Sprint Contract、Evaluator Rubric）
 - [架构决策](DECISIONS.md) — **需要了解历史决策时参考**
 - [架构边界检查](scripts/verify-architecture.sh) — **可执行的架构规则**（Agent 错误时直接运行查看 FIX 指令）
+- [任务追踪](scripts/harness-trace.sh) — **运行时可观测性工具**（记录每次会话的决策路径）
+- [功能评分](scripts/evaluate-feature.sh) — **结构化评分工具**（基于 Rubric 的多维度评估）
 
 ## 跨会话交接
 
@@ -178,6 +186,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 版本历史
 
+- **v1.7.0** — 引入运行时与过程可观测性（Lecture 11）：Task Trace、Sprint Contract、Evaluator Rubric
 - **v1.6.0** — 引入可执行架构边界检查（Lecture 10），端到端验证为强制门控
 - **v1.5.0** — 引入 WIP=1、完成证据、VCR 监控（Lecture 07）
 - **v1.4.0** — 引入跨会话交接（Clock In/Out、状态持久化）

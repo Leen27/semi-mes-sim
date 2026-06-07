@@ -1,0 +1,60 @@
+{
+  "traceVersion": "1.0.0",
+  "featureId": "F002",
+  "startedAt": "2026-06-07T11:36:50Z",
+  "endedAt": "2026-06-07T11:36:52Z",
+  "status": "passed",
+  "sessionInfo": {
+    "pwd": "/Users/linjq/code/semi-mes-sim",
+    "gitBranch": "main",
+    "gitCommit": "926d733"
+  },
+  "events": [],
+  "layers": {
+    "layer0": {
+      "name": "Architecture Boundaries",
+      "status": "passed",
+      "details": null,
+      "durationMs": 52
+    },
+    "layer1": {
+      "name": "Syntax & Static Analysis",
+      "status": "passed",
+      "details": {
+        "lintErrors": 0
+      },
+      "durationMs": 855
+    },
+    "layer2": {
+      "name": "Runtime Behavior",
+      "status": "passed",
+      "details": {
+        "testBuildErrors": 0
+      },
+      "durationMs": 756
+    },
+    "layer3": {
+      "name": "System-Level Integration",
+      "status": "passed",
+      "details": {
+        "checksPassed": 6,
+        "checksTotal": 6,
+        "skipped": 0
+      },
+      "durationMs": 9
+    }
+  },
+  "verificationCommands": [],
+  "errors": [],
+  "summary": {
+    "totalLayers": 4,
+    "passedLayers": 4,
+    "failedLayers": 0,
+    "pendingLayers": 0,
+    "totalVerifications": 0,
+    "passedVerifications": 0,
+    "failedVerifications": 0,
+    "totalErrors": 0,
+    "totalEvents": 0
+  }
+}

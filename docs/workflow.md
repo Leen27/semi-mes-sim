@@ -155,17 +155,21 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 2. **检查 WIP 限制** — 如果有 `active` 任务，继续完成它；如果没有，选取下一个 `not_started` 任务
 3. **检查依赖** — 确认该任务的所有 `dependencies` 都是 `passing`
 4. **标记为 `active`** — 更新 `feature_list.json` 中的 `activeFeatureId` 和该任务状态
-5. **在正确的包和目录中实现代码**
-6. **同步更新文档** — 检查该包 `ARCHITECTURE.md`，如有接口/约束变更必须同步修改
-7. **Layer 0 验证** — 运行 `scripts/verify-architecture.sh` 确认未违反架构边界
-8. **Layer 1 验证** — 运行 `pnpm lint` 和 `pnpm type-check`
-9. **Layer 2 验证** — 运行单元测试和构建（`pnpm test` + `pnpm build`）
-10. **Layer 3 验证** — 运行端到端验证（`scripts/verify-layers.sh` 的 Layer 3：构建产物 + 跨组件符号检查）
-11. **功能级验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
-12. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
-13. **标记为 `passing`** — 所有验证通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
-14. **更新 `PROGRESS.md`** 和 VCR
-15. **原子提交**：一次 commit 包含代码+测试+文档的完整变更
+5. **生成本功能的 Sprint Contract** — 基于 `.harness/contracts/template.md`，定义范围、验证标准、排除项
+6. **初始化 Task Trace** — `TRACE_FILE=$(bash scripts/harness-trace.sh init <featureId>)`
+7. **在正确的包和目录中实现代码**
+8. **同步更新文档** — 检查该包 `ARCHITECTURE.md`，如有接口/约束变更必须同步修改
+9. **Layer 0 验证** — 运行 `scripts/verify-architecture.sh` 确认未违反架构边界
+10. **Layer 1 验证** — 运行 `pnpm lint` 和 `pnpm type-check`
+11. **Layer 2 验证** — 运行单元测试和构建（`pnpm test` + `pnpm build`）
+12. **Layer 3 验证** — 运行端到端验证（`scripts/verify-layers.sh` 的 Layer 3：构建产物 + 跨组件符号检查）
+13. **功能级验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
+14. **Evaluator Rubric 评分** — `bash scripts/evaluate-feature.sh <featureId>`，确认各维度评分
+15. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
+16. **标记为 `passing`** — 所有验证和评分通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
+17. **Finalize Task Trace** — `bash scripts/harness-trace.sh finalize`
+18. **更新 `PROGRESS.md`** 和 VCR
+19. **原子提交**：一次 commit 包含代码+测试+文档+trace 的完整变更
 
 > **禁止行为**：
 > - 不要「顺便」重构不相关的文件。发现 B 也需要改？记下来，等 A 完成后再说。
@@ -250,6 +254,92 @@ Code Review 发现反复出现的问题
 > 
 > **正例**：`"Direct filesystem access in renderer. All file operations must go through the preload bridge. Move this call to preload/file-ops.ts and invoke it via window.api."`
 
+## 可观测性与结构化评估（Lecture 11）
+
+> 规则来源：Lecture 11 — Making the Agent's Runtime Observable
+>
+> **可观测性是 Harness 的架构属性**，不是事后添加的功能。没有可观测性，agent 在不确定性中做决策，评估变成主观判断，重试变成盲目试探。
+
+### Sprint Contract（冲刺合同）
+
+每个功能在开始实现前，agent 必须基于 `.harness/contracts/template.md` 生成本功能的 Sprint Contract。
+
+**Contract 的核心作用**：在编码前对齐预期，防止 generator 构建出 evaluator 因可预见原因拒绝的产出。
+
+Sprint Contract 必须包含：
+
+| 章节 | 说明 |
+|------|------|
+| **Scope** | 必须实现的事项 + **明确排除的事项**（防止范围蔓延） |
+| **Verification Standards** | Layer 0-3 的通过标准 |
+| **Acceptance Criteria** | A/B/C/D 四级评分标准 |
+| **Risk & Assumptions** | 假设、风险、回退方案 |
+
+**示例**：`.harness/contracts/template.md`
+
+### Evaluator Rubric（评估量规）
+
+将「好不好」从主观印象转化为基于证据的结构化评分。
+
+**评分维度**（定义在 `.harness/rubrics/default.json`）：
+
+| 维度 | 权重 | A（优秀） | D（不合格） |
+|------|------|----------|------------|
+| 代码正确性 | 30% | 所有测试通过，含边界情况 | 构建失败或主流程测试失败 |
+| 架构合规性 | 25% | verify-architecture.sh 通过 | 违反核心架构边界（一票否决） |
+| 测试覆盖 | 20% | 主流程 + 边界 + 错误路径 | 无新增测试 |
+| 文档同步 | 15% | 所有相关文档已更新 | 未更新任何文档 |
+| 端到端验证 | 10% | Layer 3 完全通过 | Layer 3 关键检查失败 |
+
+**使用方式**：
+```bash
+bash scripts/evaluate-feature.sh F004
+```
+
+输出示例：
+```
+Scorecard:
+----------
+代码正确性                A [████] 1.20/1.20 — 所有 verificationCommand 通过
+架构合规性                A [████] 1.00/1.00 — 功能已达到 passing 状态
+测试覆盖                 B [███░] 0.60/0.80 — 测试存在且通过
+文档同步                 A [████] 0.60/0.60 — 文档验证项存在
+端到端验证                A [████] 0.40/0.40 — 端到端验证通过
+
+Overall: A (优秀) — 3.80/4.00
+```
+
+### Task Trace（任务追踪）
+
+每次会话的完整决策路径记录，是可观测性的核心基础设施。
+
+**Trace 记录内容**：
+- 会话生命周期（开始、事件、结束）
+- 各验证层的结果和耗时
+- 功能级 verificationCommand 的执行结果
+- 错误和决策上下文
+
+**使用方式**：
+```bash
+# verify-layers.sh 会自动创建 trace（当传入 feature-id 时）
+bash scripts/verify-layers.sh F004
+
+# 手动创建和记录
+trace_file=$(bash scripts/harness-trace.sh init F004)
+export TRACE_FILE=$trace_file
+bash scripts/harness-trace.sh record "code_change" '{"files": ["a.ts"]}'
+bash scripts/harness-trace.sh layer 0 "passed"
+bash scripts/harness-trace.sh finalize
+```
+
+**Trace 文件位置**：`.harness/traces/trace-<featureId>-<timestamp>.json`
+
+### 为什么 agent 自己不能解决可观测性
+
+1. **Agent 不知道自己不知道什么** — 不会主动记录它没意识到的信号
+2. **日志格式不一致** — 不同会话使用不同格式，无法系统分析
+3. **过程可观测性无法通过日志解决** — Sprint Contract 和 Rubric 是需要 harness 支持的结构化产物
+
 ## 遇到问题的处理
 
 - 如果架构约束阻止你实现功能，**不要绕过约束**
@@ -282,11 +372,13 @@ Code Review 发现反复出现的问题
 - **`DECISIONS.md`** — 关键设计决策及原因（保留「为什么」，不只是「做了什么」）
 - **Git commits** — 原子提交形成自动版本快照，commit message 应说明「做了什么 + 为什么」
 - **验证记录** — `make check` 的结果是状态的一部分，必须在 `PROGRESS.md` 中记录
+- **Task Trace** — `.harness/traces/trace-<featureId>-<timestamp>.json`：会话的完整决策路径记录，包含每层验证结果、耗时、错误。新会话通过阅读 trace 可在 3 分钟内重建状态
 
 ### Clock In / Clock Out 检查清单
 
 **Clock In（会话开始）**：
 - [ ] 读取 `PROGRESS.md`、`DECISIONS.md`、`feature_list.json`
+- [ ] **读取最新的 Task Trace**（`.harness/traces/trace-<featureId>-*.json`）— 重建上一轮决策上下文
 - [ ] 确认当前 `activeFeatureId` 和完成证据
 - [ ] 运行 `make check` 确认仓库自洽
 - [ ] 从 `active` 任务继续执行，或按 WIP=1 规则选取下一个任务
@@ -295,8 +387,9 @@ Code Review 发现反复出现的问题
 - [ ] 更新 `feature_list.json`（任务状态、已完成证据、activeFeatureId）
 - [ ] 更新 `PROGRESS.md`（进度、测试状态、已知问题、阻塞项、VCR）
 - [ ] 如有新决策，追加到 `DECISIONS.md`
+- [ ] **确保 Task Trace 已 finalize**（运行 `scripts/harness-trace.sh finalize`）
 - [ ] 运行 `make check` 确认自洽状态
-- [ ] 原子提交所有已完成工作
+- [ ] 原子提交所有已完成工作（包含代码 + 测试 + 文档 + trace）
 
 > **判定标准**：如果任务预计消耗超过 60% 的上下文窗口，立即开始准备 handoff（更新 PROGRESS.md、做原子提交）。不要等上下文耗尽才匆忙收尾。
 
