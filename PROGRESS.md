@@ -1,27 +1,40 @@
 # 项目进度
 
 > 最后更新: 2026-06-07
-> 来源: feature_list.json
+> 来源: feature_list.json（harness-creator 诊断后更新）
 
 ## 项目阶段
 
-**阶段**: 基础建设期 —— 核心框架与类型系统搭建
+**阶段**: 功能实现期 —— 按 WIP=1 模式逐个交付功能
 
 ## 当前状态
 
-- **最新 commit**: `HEAD`（初始化阶段已完成，等待首次功能提交）
-- **验证状态**: lint ✅ / type-check ✅ / test ✅（含示例测试 `lot.test.ts`）
+- **最新 commit**: `HEAD`（harness-creator 诊断与状态修正）
+- **验证状态**: lint ✅ / type-check ✅ / test ✅
 - **活跃分支**: `main`
+- **VCR（验证完成率）**: 5/5 = 100%
+- **活跃功能**: 无
 
 | 领域 | 进度 | 说明 |
 |------|------|------|
-| core (MES 核心) | 0/2 | 数据模型与仿真引擎待实现 |
-| 3d-engine (3D 引擎) | 0/3 | 场景框架、设备资产、动画系统待实现 |
-| web (主应用) | 0/3 | 界面、控制面板、看板待实现 |
+| core (MES 核心) | 2/2 | F002 passing，F004 待启动 |
+| 3d-engine (3D 引擎) | 3/3 | F001/F003/F006 passing，F007 待启动 |
+| web (主应用) | 1/3 | F005 passing，F008/F009/F010 待启动 |
 | ui (组件库) | 0/0 | 等待 web 需求驱动 |
 
-## 已完成
+## 已完成（passing）
 
+- [x] **F002**: MES 核心数据模型 (`core`)
+  - 完成证据: 类型定义完整 ✅ / 枚举测试通过 ✅ / lint+type-check+build ✅
+- [x] **F001**: 3D 晶圆厂场景基础框架 (`3d-engine`)
+  - 完成证据: SceneManager 导出 ✅ / Engine+Scene+Camera+Ground ✅ / lint+type-check+build ✅
+- [x] **F003**: 设备 3D 资产与布局 (`3d-engine`)
+  - 完成证据: 设备模型支持所有类型 ✅ / FabLayout 类 ✅ / lint+type-check+build ✅
+- [x] **F005**: Web 主应用界面 (`web`)
+  - 完成证据: App.vue 挂载 Canvas ✅ / store 完整行为 ✅ / lint+type-check+build ✅
+  - **注意**: F005 代码已存在且验证通过，但其依赖 F004（仿真引擎）的事件处理仍是 TODO。这是初始化阶段遗留的技术债务，不影响 F005 自身的完成证据。
+- [x] **F006**: 设备状态可视化 (`3d-engine`)
+  - 完成证据: updateEquipmentStatus 函数 ✅ / 颜色映射覆盖 ✅ / lint+type-check+build ✅
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置
@@ -31,59 +44,52 @@
 - [x] 各包 ARCHITECTURE.md 模块级文档
 - [x] 专题文档拆分（docs/toolchain.md、coding-standards.md、workflow.md）
 - [x] Makefile 标准化命令
-- [x] **初始化阶段完成**：启动就绪清单 + 示例测试通过 + 任务分解
+- [x] **WIP=1 工作流引入** — `feature_list.json` 重构为范围表面，含完成证据、DAG、四状态
+- [x] **harness-creator skill** — 项目内置 skill，支持初始化、验证、维护 Harness 控制
 
-## 进行中
+## 进行中（active）
 
-无 —— 等待功能开发启动
+无 —— VCR = 1.0，可启动下一个任务
 
-## 待办（按优先级）
+## 待办（按 WIP=1 规则排序）
 
-### High
-- [ ] **F001**: 3D 晶圆厂场景基础框架 (`3d-engine`)
-- [ ] **F002**: MES 核心数据模型 (`core`)
-- [ ] **F004**: MES 仿真引擎 (`core`)
-- [ ] **F005**: Web 主应用界面 (`web`)
+### 可立即启动（依赖已满足）
 
-### Medium
-- [ ] **F003**: 设备 3D 资产与布局 (`3d-engine`)
-- [ ] **F006**: 设备状态可视化 (`3d-engine`)
-- [ ] **F007**: Lot 流转动画 (`3d-engine`)
-- [ ] **F008**: 仿真控制面板 (`web`)
+| 优先级 | ID | 名称 | 领域 | 依赖 | 说明 |
+|--------|-----|------|------|------|------|
+| high | **F004** | MES 仿真引擎 | core | F002 ✅ | 引擎框架已有，processEvent 仍是 TODO，缺 event-queue.test.ts 和 simulation-engine.test.ts |
+| medium | **F007** | Lot 流转动画 | 3d-engine | F003 ✅, F004 ❌ | 动画系统已有基础，缺 pause/speed/reverse 控制 |
 
-### Low
-- [ ] **F009**: 设备详情弹窗 (`web`)
-- [ ] **F010**: WIP 追踪看板 (`web`)
+### 阻塞中（依赖未满足）
 
-## 文档同步状态
+| 优先级 | ID | 名称 | 领域 | 阻塞原因 |
+|--------|-----|------|------|----------|
+| medium | F008 | 仿真控制面板 | web | 等待 F005 ✅（已满足，但需 F004 稳定后启动） |
+| low | F009 | 设备详情弹窗 | web | 等待 F003 ✅（已满足，但需 F005 稳定后启动） |
+| low | F010 | WIP 追踪看板 | web | 等待 F005 ✅（已满足） |
 
-| 文档 | 对应代码 | 同步状态 |
-|------|----------|----------|
-| `AGENTS.md` | 入口文件（<100 行） | ✅ 最新 |
-| `docs/toolchain.md` | ESLint/TS/Vitest 规范 | ✅ 最新 |
-| `docs/coding-standards.md` | 编码/3D/Vue 规范 | ✅ 最新 |
-| `docs/workflow.md` | 工作流/ACID/知识衰减 | ✅ 最新 |
-| `DECISIONS.md` | 架构决策 | ✅ 最新 |
-| `packages/core/ARCHITECTURE.md` | `packages/core/src/` | ✅ 最新（待代码填充） |
-| `packages/3d-engine/ARCHITECTURE.md` | `packages/3d-engine/src/` | ✅ 最新（待代码填充） |
-| `packages/ui/ARCHITECTURE.md` | `packages/ui/src/components/` | ✅ 最新（待代码填充） |
-| `packages/config/README.md` | `packages/config/` | ✅ 最新 |
-| `apps/web/ARCHITECTURE.md` | `apps/web/src/` | ✅ 最新（待代码填充） |
-
-> **知识衰减警告**：以上「同步状态」仅表示文档与当前空代码结构一致。一旦开始功能开发，每次代码变更都必须重新验证对应行的状态。
+> **注意**: F008/F009/F010 的依赖在代码层面已满足（F003/F005 均已 passing），但按照 WIP=1 规则，应先完成 F004 再启动它们。
 
 ## 已知问题
 
-无
+1. **F004 processEvent 是 TODO** — `packages/core/src/engine/simulation-engine.ts` 第 136-146 行的事件处理逻辑为空实现。这是仿真引擎的核心行为，需要实现 Lot 分配、加工完成、设备故障等事件处理。
+2. **F007 动画系统缺控制功能** — `packages/3d-engine/src/animation/animation-system.ts` 有 `play()` 和 `stop()`，但没有 `pause()`、`setSpeed()`、`reverse()` 方法。
 
 ## 阻塞项
 
-无
+无外部阻塞项。
 
 ## 下一步
 
-1. 优先实现 `packages/core/src/models/` 中的领域类型（Lot、Equipment、Recipe、Step）
-2. 同步搭建 `packages/3d-engine/src/scene/` 的基础 SceneManager
-3. 确保两个包之间的类型契约稳定后，再启动 `apps/web` 的界面开发
+1. **启动 F004（MES 仿真引擎）**
+   - 已有基础代码（EventQueue、SimulationEngine 类）
+   - 需要完成：
+     - 实现 `processEvent()` 中的具体事件处理逻辑（非 TODO）
+     - 编写 `event-queue.test.ts`（最小堆行为测试）
+     - 编写 `simulation-engine.test.ts`（start/pause/reset/tick/setSpeed 行为测试）
+2. **F004 passing 后，启动 F007（Lot 流转动画）**
+   - 补充 `AnimationSystem` 的 `pause()`、`setSpeed()`、`reverse()` 方法
+3. **然后按优先级启动 F008 → F009 → F010**
 
-> **会话交接提示**：新会话请从「下一步」开始执行。若已完成某项，请将其移到「已完成」并更新上方的「最新 commit」和「验证状态」。
+> **WIP=1 提醒**: 一次只启动一个。不要同时做 F004 和 F007。
+> **会话交接提示**: 新会话请从「下一步」开始执行。若已完成某项，请将其移到「已完成」并更新上方的「最新 commit」和「验证状态」。

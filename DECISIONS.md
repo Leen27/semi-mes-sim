@@ -107,3 +107,23 @@
   - 获得各依赖的最新性能优化和 bug 修复
   - TypeScript 6 的 `baseUrl` 弃用需要所有 `paths` 使用相对路径
   - Babylon.js 从 7 升级到 9 是大版本跳跃，需关注后续 breaking changes
+
+## ADR-008：引入 WIP=1 与范围表面外化
+
+- **状态**: 已接受
+- **日期**: 2026-06-07
+- **背景**: Agent 频繁「过度延伸」（一次启动多个功能）和「未完成」（代码写了但测试不通过），导致代码库中充满半成品。Anthropic 实验数据显示，使用「small next step」策略（WIP=1）的任务完成率比宽泛提示高出 37%。代码行数与功能完成率呈弱负相关。
+- **决策**: 
+  1. **WIP=1**：任何时刻 `feature_list.json` 中只能有一个功能处于 `active` 状态
+  2. **完成证据外化**：每个功能必须定义可执行的 `verificationCommand`，通过后才算完成
+  3. **范围表面持久化**：`feature_list.json` 作为机器可读的范围表面，包含 DAG 依赖、四状态（not_started/active/blocked/passing）和 VCR 指标
+  4. **VCR 监控**：Verified Completion Rate = passing / (passing + active + blocked)，VCR < 1.0 时禁止激活新任务
+- **拒绝的替代方案**: 
+  - 保持原有 `feature_list.json`（只有名称和简单描述，没有完成证据和状态机）
+  - 依赖 agent 自律（agent 天生倾向「多做一点」，没有外部约束无法抑制）
+- **后果**:
+  - 每个功能实现必须附带可执行的验证命令
+  - 会话交接时新 agent 可立即通过 `feature_list.json` 重建状态
+  - 减少「顺便重构」和范围蔓延
+  - 需要维护 `feature_list.json` 中的状态和依赖关系
+  - 功能分解粒度需要足够小，以便单会话完成

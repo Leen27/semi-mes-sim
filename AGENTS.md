@@ -36,6 +36,9 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 12. 新增包必须有 `eslint.config.js` 且 `package.json` 设置 `"type": "module"`
 13. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
 14. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
+15. **WIP = 1** —— 任何时刻只能有一个功能处于 `active` 状态。完成一个，再开始下一个
+16. **完成证据必须可执行** —— 功能不是「代码写好了」，而是 `feature_list.json` 中定义的 verificationCommand 全部通过
+17. **VCR < 1.0 时禁止激活新任务** —— 验证完成率（Verified Completion Rate）低于 100% 时，必须先让活跃任务达到 `passing`
 
 ## 目录职责
 
@@ -48,6 +51,16 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 | `packages/config` | 共享 TS/ESLint/Vite 配置 | 依赖业务包 |
 
 包间依赖：`apps/web` → `core` / `3d-engine` / `ui`；`3d-engine` → `core`（仅类型）；`ui` → `core`（仅类型）
+
+## 工作规则（WIP=1）
+
+> 规则来源：Lecture 07 — Draw Clear Task Boundaries for Agents
+
+- **一次只做一件事** —— `feature_list.json` 中 `active` 状态的功能只能有一个
+- **完成证据通过才算完成** —— 不要凭「代码看起来没问题」判断完成，必须运行 verificationCommand 并确认通过
+- **不要顺便重构** —— 实现功能 A 时，如果发现功能 B 也需要改，记下来，不要顺手改
+- **依赖未 `passing` 的功能不能启动** —— 检查 `feature_list.json` 中的 `dependencies`，前置条件必须是 `passing`
+- **会话结束时必须更新 `feature_list.json` 和 `PROGRESS.md`** —— 记录当前活跃功能的状态、已通过的完成证据、阻塞原因
 
 ## 全新会话测试
 
@@ -78,14 +91,16 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 **Clock In（会话开始）**：
 1. 读取 `PROGRESS.md` 了解进度、阻塞项和下一步
 2. 读取 `DECISIONS.md` 了解关键决策及原因
-3. 运行 `make check` 确认仓库处于自洽状态
-4. 从 `PROGRESS.md`「下一步」继续工作
+3. 读取 `feature_list.json` 确认当前活跃任务和完成证据
+4. 运行 `make check` 确认仓库处于自洽状态
+5. 从 `PROGRESS.md`「下一步」继续工作
 
 **Clock Out（会话结束）**：
-1. 更新 `PROGRESS.md`（进度、验证状态、阻塞项）
-2. 新决策追加到 `DECISIONS.md`
-3. 运行 `make check` 确认自洽状态
-4. 原子提交所有已完成的工作
+1. 更新 `feature_list.json`（活跃任务状态、已通过的完成证据）
+2. 更新 `PROGRESS.md`（进度、验证状态、阻塞项、VCR）
+3. 新决策追加到 `DECISIONS.md`
+4. 运行 `make check` 确认自洽状态
+5. 原子提交所有已完成的工作
 
 > 详细策略见 [工作流文档](docs/workflow.md)
 
@@ -100,9 +115,13 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 | **WIP** | 在制品（Work In Process） |
 | **DES** | 离散事件仿真（Discrete Event Simulation） |
 | **Fab** | 晶圆厂（Fabrication Plant） |
+| **Scope Surface** | 范围表面，`feature_list.json` 中记录的任务 DAG 和状态 |
+| **VCR** | Verified Completion Rate = 已验证任务 / 已激活任务 |
+| **Completion Evidence** | 完成证据，可执行的验证命令 |
 
 ## 版本历史
 
+- **v1.5.0** — 引入 WIP=1、完成证据、VCR 监控（Lecture 07）
 - **v1.4.0** — 引入跨会话交接（Clock In/Out、状态持久化）
 - **v1.3.0** — 拆分 `AGENTS.md` 为入口文件 + 专题文档
 - **v1.2.0** — 引入 Harness Engineering 规则体系

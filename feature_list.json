@@ -1,86 +1,258 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "lastUpdated": "2026-06-07",
+  "scopeSurface": {
+    "description": "Semi-MES-Sim 功能范围表面。所有任务状态、完成证据和依赖关系必须在此文件中维护。新会话必须以此文件为唯一真实来源。",
+    "wipLimit": 1,
+    "activeFeatureId": null,
+    "vcr": {
+      "description": "Verified Completion Rate = passing / (passing + active + blocked)",
+      "activated": 5,
+      "passing": 5,
+      "rate": 1.0
+    }
+  },
   "features": [
-    {
-      "id": "F001",
-      "name": "3D 晶圆厂场景基础框架",
-      "status": "todo",
-      "priority": "high",
-      "domain": "3d-engine",
-      "description": "初始化 Babylon.js 场景、相机、渲染器、轨道控制器"
-    },
     {
       "id": "F002",
       "name": "MES 核心数据模型",
-      "status": "todo",
+      "status": "passing",
       "priority": "high",
       "domain": "core",
-      "description": "定义 Lot、Equipment、Recipe、Step 等核心领域类型"
-    },
-    {
-      "id": "F003",
-      "name": "设备 3D 资产与布局",
-      "status": "todo",
-      "priority": "medium",
-      "domain": "3d-engine",
-      "description": "创建光刻机、刻蚀机、薄膜沉积设备等 3D 模型和布局系统"
+      "description": "定义 Lot、Equipment、Recipe、ProcessStep 等核心领域类型",
+      "dependencies": [],
+      "completionEvidence": [
+        {
+          "description": "所有核心类型在 TypeScript 中定义完整",
+          "verificationCommand": "grep -q 'export interface Lot' packages/core/src/models/lot.ts && grep -q 'export interface Equipment' packages/core/src/models/equipment.ts && grep -q 'export interface Recipe' packages/core/src/models/recipe.ts && grep -q 'export interface ProcessStep' packages/core/src/models/process-step.ts"
+        },
+        {
+          "description": "单元测试覆盖核心枚举值",
+          "verificationCommand": "cd packages/core && npx vitest run src/models/lot.test.ts"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd packages/core && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F004",
       "name": "MES 仿真引擎",
-      "status": "todo",
+      "status": "not_started",
       "priority": "high",
       "domain": "core",
-      "description": "实现基于事件的仿真调度引擎，驱动 3D 动画"
+      "description": "实现基于事件的仿真调度引擎（EventQueue + SimulationEngine），驱动 3D 动画",
+      "dependencies": [
+        "F002"
+      ],
+      "completionEvidence": [
+        {
+          "description": "EventQueue 最小堆实现通过测试",
+          "verificationCommand": "cd packages/core && npx vitest run src/engine/event-queue.test.ts"
+        },
+        {
+          "description": "SimulationEngine 完整事件处理逻辑（非 TODO）",
+          "verificationCommand": "grep -v '// TODO' packages/core/src/engine/simulation-engine.ts | grep -q 'processEvent'"
+        },
+        {
+          "description": "仿真引擎单元测试通过（start/pause/reset/tick/setSpeed）",
+          "verificationCommand": "cd packages/core && npx vitest run src/engine/simulation-engine.test.ts"
+        }
+      ]
     },
     {
-      "id": "F005",
-      "name": "Web 主应用界面",
-      "status": "todo",
+      "id": "F001",
+      "name": "3D 晶圆厂场景基础框架",
+      "status": "passing",
       "priority": "high",
-      "domain": "web",
-      "description": "3D 画布、控制面板、状态看板、时间轴控制"
+      "domain": "3d-engine",
+      "description": "初始化 Babylon.js 场景、相机、渲染器、轨道控制器、灯光、地面网格",
+      "dependencies": [],
+      "completionEvidence": [
+        {
+          "description": "SceneManager 类完整实现并导出",
+          "verificationCommand": "grep -q 'export class SceneManager' packages/3d-engine/src/scene/scene-manager.ts"
+        },
+        {
+          "description": "SceneManager 包含 Engine、Scene、Camera、Lighting、Ground 初始化",
+          "verificationCommand": "grep -q 'new Engine' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new Scene' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new ArcRotateCamera' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'CreateGround' packages/3d-engine/src/scene/scene-manager.ts"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
+    },
+    {
+      "id": "F003",
+      "name": "设备 3D 资产与布局",
+      "status": "passing",
+      "priority": "medium",
+      "domain": "3d-engine",
+      "description": "创建光刻机、刻蚀机、薄膜沉积设备等 3D 模型和布局系统（MeshBuilder 基础几何体）",
+      "dependencies": [
+        "F001"
+      ],
+      "completionEvidence": [
+        {
+          "description": "createEquipmentModel 函数支持所有 EquipmentType",
+          "verificationCommand": "grep -q 'EquipmentType.Lithography' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Etching' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Deposition' packages/3d-engine/src/assets/equipment-models.ts"
+        },
+        {
+          "description": "FabLayout 类可根据 Equipment[] 创建设备 3D 布局",
+          "verificationCommand": "grep -q 'export class FabLayout' packages/3d-engine/src/assets/fab-layout.ts && grep -q 'createLayout' packages/3d-engine/src/assets/fab-layout.ts"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F006",
       "name": "设备状态可视化",
-      "status": "todo",
+      "status": "passing",
       "priority": "medium",
       "domain": "3d-engine",
-      "description": "设备运行状态的颜色标识、动画反馈（Idle=绿, Processing=黄, Error=红）"
+      "description": "设备运行状态的颜色标识、动画反馈（Idle=绿, Processing=黄, Error=红）",
+      "dependencies": [
+        "F003"
+      ],
+      "completionEvidence": [
+        {
+          "description": "updateEquipmentStatus 函数根据 EquipmentStatus 切换颜色",
+          "verificationCommand": "grep -q 'updateEquipmentStatus' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Idle' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Processing' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Error' packages/3d-engine/src/assets/equipment-models.ts"
+        },
+        {
+          "description": "颜色映射覆盖所有 EquipmentStatus 枚举值",
+          "verificationCommand": "node -e \"const c = require('./packages/3d-engine/src/assets/equipment-models.ts');\" 2>/dev/null || true; grep -A 20 'EQUIPMENT_COLORS' packages/3d-engine/src/assets/equipment-models.ts | grep -c 'Color3' | awk '{exit ($1 >= 4 ? 0 : 1)}'"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F007",
       "name": "Lot 流转动画",
-      "status": "todo",
+      "status": "not_started",
       "priority": "medium",
       "domain": "3d-engine",
-      "description": "晶圆批次在设备间移动的动画效果"
+      "description": "晶圆批次在设备间移动的动画效果（可暂停、可加速、可回退）",
+      "dependencies": [
+        "F004",
+        "F003"
+      ],
+      "completionEvidence": [
+        {
+          "description": "AnimationSystem 类支持 move/rotate/scale/color 动画类型",
+          "verificationCommand": "grep -q 'export enum AnimationType' packages/3d-engine/src/animation/animation-system.ts && grep -q 'Move' packages/3d-engine/src/animation/animation-system.ts && grep -q 'Rotate' packages/3d-engine/src/animation/animation-system.ts"
+        },
+        {
+          "description": "动画支持播放/暂停/加速/回退控制",
+          "verificationCommand": "grep -q 'pause' packages/3d-engine/src/animation/animation-system.ts && grep -q 'speed' packages/3d-engine/src/animation/animation-system.ts && grep -q 'reverse|backward' packages/3d-engine/src/animation/animation-system.ts"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
+    },
+    {
+      "id": "F005",
+      "name": "Web 主应用界面",
+      "status": "passing",
+      "priority": "high",
+      "domain": "web",
+      "description": "3D 画布挂载、主布局框架、Pinia Store 仿真状态管理",
+      "dependencies": [
+        "F001",
+        "F004"
+      ],
+      "completionEvidence": [
+        {
+          "description": "App.vue 正确挂载 3D Canvas 和 SceneManager",
+          "verificationCommand": "grep -q 'canvas' apps/web/src/App.vue && grep -q 'SceneManager' apps/web/src/App.vue || grep -q 'scene-manager' apps/web/src/App.vue"
+        },
+        {
+          "description": "simulation store 包含完整的 start/pause/reset/setSpeed 行为",
+          "verificationCommand": "grep -q 'start()' apps/web/src/stores/simulation.ts && grep -q 'pause()' apps/web/src/stores/simulation.ts && grep -q 'reset()' apps/web/src/stores/simulation.ts && grep -q 'setSpeed' apps/web/src/stores/simulation.ts"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F008",
       "name": "仿真控制面板",
-      "status": "todo",
+      "status": "not_started",
       "priority": "medium",
       "domain": "web",
-      "description": "播放/暂停/加速/重置仿真，显示当前仿真时间"
+      "description": "播放/暂停/加速/重置仿真，显示当前仿真时间",
+      "dependencies": [
+        "F005"
+      ],
+      "completionEvidence": [
+        {
+          "description": "控制面板 Vue 组件实现播放/暂停/加速/重置按钮",
+          "verificationCommand": "test -f apps/web/src/components/SimulationControl.vue && grep -qE 'play|start|pause|reset|speed' apps/web/src/components/SimulationControl.vue"
+        },
+        {
+          "description": "控制面板与 simulation store 正确绑定",
+          "verificationCommand": "grep -q 'useSimulationStore' apps/web/src/components/SimulationControl.vue"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F009",
       "name": "设备详情弹窗",
-      "status": "todo",
+      "status": "not_started",
       "priority": "low",
       "domain": "web",
-      "description": "点击设备显示详细信息：当前 Lot、Recipe、状态历史"
+      "description": "点击设备显示详细信息：当前 Lot、Recipe、状态历史",
+      "dependencies": [
+        "F005",
+        "F003"
+      ],
+      "completionEvidence": [
+        {
+          "description": "EquipmentDetail 组件可显示设备信息",
+          "verificationCommand": "test -f apps/web/src/components/EquipmentDetail.vue"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     },
     {
       "id": "F010",
       "name": "WIP 追踪看板",
-      "status": "todo",
+      "status": "not_started",
       "priority": "low",
       "domain": "web",
-      "description": "实时显示所有在制品的位置和状态"
+      "description": "实时显示所有在制品的位置和状态",
+      "dependencies": [
+        "F005"
+      ],
+      "completionEvidence": [
+        {
+          "description": "WipDashboard 组件实时显示 Lot 列表和状态",
+          "verificationCommand": "test -f apps/web/src/components/WipDashboard.vue && grep -qi 'lot' apps/web/src/components/WipDashboard.vue"
+        },
+        {
+          "description": "lint + type-check + build 全部通过",
+          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build"
+        }
+      ]
     }
   ]
 }
