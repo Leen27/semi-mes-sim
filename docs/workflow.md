@@ -149,6 +149,8 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 
 ## 添加新功能的步骤（WIP=1 + 四层验证模式）
 
+> 详细的标准操作流程见 [`docs/sops/`](../sops/index.md)。
+>
 > 规则来源：WIP=1 工作流 + Feature List Primitive + 四层验证模式
 
 1. **读取 `feature_list.json`** — 确认当前 `activeFeatureId` 和 `scopeSurface.vcr`

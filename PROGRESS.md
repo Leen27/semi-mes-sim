@@ -61,6 +61,14 @@
   - 双模式清理策略：即时清理（每次会话）+ 定期清理（每月第一周）
   - Harness 简化机制：每月审视一个组件，验证是否可被模型自主替代
   - ADR-011 记录决策
+- [x] **应用 resources 资料库到项目**
+  - 新增 `SESSION_HANDOFF.md`：会话交接摘要，含当前已验证、本轮改动、仍损坏项、下一步动作
+  - 新增 `docs/TECH_DEBT.md`：技术债跟踪，记录 5 条已确认的债务（F004 TODO、测试盲区、依赖不一致）
+  - 新增 `docs/sops/` 目录：标准操作流程（clock-in-out.md、verification-layers.md、architecture-boundary-check.md）
+  - 新增 `.harness/rubrics/evaluator-rubric.md`：六维度评审评分表（0-2 分制）
+  - 优化 `AGENTS.md`：新增「路由地图」章节，采用短入口 + 深链接风格
+  - 优化 `docs/quality.md`：新增 Benchmark 快照和简化实验日志
+  - 更新 `AGENTS.md` 专题文档索引：新增 SOP、TECH_DEBT、SESSION_HANDOFF 等链接
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置

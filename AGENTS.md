@@ -20,6 +20,32 @@ make check   # 完整验证：lint + type-check + test
 make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 ```
 
+## 路由地图
+
+保持这个文件简短，把它当成"唯一事实来源"文档的入口和路由层，而不是一个不断膨胀的大说明书。需要更多细节时，优先读下面链接的专题文档，而不是继续把这个文件写长。
+
+| 文档 | 内容 | 什么时候读 |
+|------|------|-----------|
+| `feature_list.json` | 功能状态的唯一事实来源 | 每次开工前 |
+| `PROGRESS.md` | 当前进度、验证状态、下一步 | 每次开工前 |
+| `SESSION_HANDOFF.md` | 会话交接摘要，快速重建上下文 | 每次开工前 |
+| `docs/startup-readiness.md` | 环境检查和首次启动 | 首次接入仓库 |
+| `docs/workflow.md` | WIP=1 工作流、四层验证、Clock In/Out | 执行任务前 |
+| `docs/sops/` | 标准操作流程（Clock In/Out、验证层、架构边界检查） | 遇到对应场景时 |
+| `docs/coding-standards.md` | 命名、文件组织、Vue/Babylon.js 规范 | 编写代码时 |
+| `docs/toolchain.md` | ESLint、TypeScript、构建脚本配置 | 修改工具链时 |
+| `docs/quality.md` | 模块质量追踪、测试缺口、行动项 | 开始新阶段前 |
+| `docs/TECH_DEBT.md` | 已确认的技术债、延期原因、触发点 | 评估 blocker 时 |
+| `DECISIONS.md` | 架构决策记录（ADR） | 需要了解历史决策 |
+| `scripts/verify-architecture.sh` | 可执行的架构边界检查 | 发生架构违规时 |
+| `scripts/verify-layers.sh` | 四层验证（Layer 0-3） | 会话结束时 |
+| `scripts/session-exit-check.sh` | 五维度干净状态检查 | 会话结束时 |
+| `scripts/session-cleanup.sh` | 幂等清理脚本 | 会话结束时 |
+| `scripts/evaluate-feature.sh` | 基于 Rubric 的结构化评分 | 功能完成后 |
+| `.harness/contracts/template.md` | Sprint Contract 模板 | 开始新功能前 |
+| `.harness/rubrics/default.json` | 五维度 Evaluator Rubric | 功能评审时 |
+| `.harness/rubrics/evaluator-rubric.md` | 六维度评审评分表 | 功能评审时 |
+
 ## 硬约束（不可违反）
 
 ### 架构边界（架构规则必须可执行）
@@ -152,14 +178,19 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 - [工具链配置](docs/toolchain.md) — **修改 ESLint、TypeScript、构建脚本时必读**
 - [编码规范](docs/coding-standards.md) — **编写代码时参考**
 - [启动就绪清单](docs/startup-readiness.md) — **首次接入仓库时必读**
-- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**（含端到端验证层级、审查反馈提升、Sprint Contract、Evaluator Rubric）
+- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**
+- [标准操作流程](docs/sops/index.md) — **可重复操作的标准化执行手册**
+- [技术债跟踪](docs/TECH_DEBT.md) — **评估 blocker 时参考**
 - [架构决策](DECISIONS.md) — **需要了解历史决策时参考**
-- [架构边界检查](scripts/verify-architecture.sh) — **可执行的架构规则**（Agent 错误时直接运行查看 FIX 指令）
-- [任务追踪](scripts/harness-trace.sh) — **运行时可观测性工具**（记录每次会话的决策路径）
-- [功能评分](scripts/evaluate-feature.sh) — **结构化评分工具**（基于 Rubric 的多维度评估）
-- [会话退出检查](scripts/session-exit-check.sh) — **五维度干净状态检查**（会话能否安全结束）
-- [会话清理](scripts/session-cleanup.sh) — **幂等熵减工具**（删除临时产物，保持仓库整洁）
-- [质量文档](docs/quality.md) — **模块质量追踪器**（持续记录各模块健康度）
+- [会话交接](SESSION_HANDOFF.md) — **快速重建跨会话上下文**
+- [架构边界检查](scripts/verify-architecture.sh) — **可执行的架构规则**
+- [任务追踪](scripts/harness-trace.sh) — **运行时可观测性工具**
+- [功能评分](scripts/evaluate-feature.sh) — **结构化评分工具**
+- [会话退出检查](scripts/session-exit-check.sh) — **五维度干净状态检查**
+- [会话清理](scripts/session-cleanup.sh) — **幂等熵减工具**
+- [质量文档](docs/quality.md) — **模块质量追踪器**
+- [Sprint Contract 模板](.harness/contracts/template.md) — **编码前对齐范围与验收标准**
+- [Evaluator Rubric](.harness/rubrics/evaluator-rubric.md) — **六维度评审评分表**
 
 ## 跨会话交接
 
