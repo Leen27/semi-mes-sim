@@ -31,7 +31,10 @@
 
     <!-- 中央 3D 画布 -->
     <main class="main-content">
-      <canvas ref="canvasRef" class="canvas-element"></canvas>
+      <canvas
+        ref="canvasRef"
+        class="canvas-element"
+      />
     </main>
 
     <!-- 底部状态栏 -->

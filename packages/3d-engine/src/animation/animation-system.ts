@@ -4,6 +4,7 @@ import {
   Mesh,
   Vector3,
   Color3,
+  StandardMaterial,
   Scene,
   EasingFunction,
   CubicEase,
@@ -192,7 +193,8 @@ export class AnimationSystem {
       Animation.ANIMATIONLOOPMODE_CONSTANT
     )
     const toColor = def.to as Color3
-    const fromColor = (mesh.material as any)?.diffuseColor?.clone() ?? new Color3(1, 1, 1)
+    const mat = mesh.material as StandardMaterial | null
+    const fromColor = mat?.diffuseColor?.clone() ?? new Color3(1, 1, 1)
     anim.setKeys([
       { frame: 0, value: fromColor },
       { frame: def.duration, value: toColor }

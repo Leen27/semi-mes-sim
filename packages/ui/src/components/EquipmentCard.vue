@@ -1,5 +1,8 @@
 <template>
-  <div class="equipment-card" :class="statusClass">
+  <div
+    class="equipment-card"
+    :class="statusClass"
+  >
     <div class="equipment-header">
       <span class="equipment-name">{{ name }}</span>
       <StatusBadge :status="status" />

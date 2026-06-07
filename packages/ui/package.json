@@ -15,8 +15,8 @@
   "scripts": {
     "build": "vue-tsc --declaration --emitDeclarationOnly && vite build",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint src --ext .ts,.vue",
-    "test": "vitest run",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests",
     "clean": "rm -rf dist"
   },
   "dependencies": {

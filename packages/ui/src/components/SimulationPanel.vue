@@ -17,24 +17,27 @@
           step="0.1"
           :value="speed"
           @input="$emit('speedChange', parseFloat(($event.target as HTMLInputElement).value))"
-        />
+        >
       </div>
       <div class="control-buttons">
         <button
           class="btn btn-primary"
-          @click="$emit('start')"
           :disabled="isRunning"
+          @click="$emit('start')"
         >
           ▶ 开始
         </button>
         <button
           class="btn btn-secondary"
-          @click="$emit('pause')"
           :disabled="!isRunning"
+          @click="$emit('pause')"
         >
           ⏸ 暂停
         </button>
-        <button class="btn btn-secondary" @click="$emit('reset')">
+        <button
+          class="btn btn-secondary"
+          @click="$emit('reset')"
+        >
           ↺ 重置
         </button>
       </div>
