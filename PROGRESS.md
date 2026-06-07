@@ -21,10 +21,11 @@
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置
-- [x] AGENTS.md 项目规范文档
+- [x] AGENTS.md 入口文件（<100 行，硬约束 + 专题索引）
 - [x] Harness Engineering 规则体系（ACID、知识衰减防护、全新会话测试）
 - [x] DECISIONS.md 架构决策记录
 - [x] 各包 ARCHITECTURE.md 模块级文档
+- [x] 专题文档拆分（docs/toolchain.md、coding-standards.md、workflow.md）
 - [x] Makefile 标准化命令
 
 ## 进行中
@@ -53,7 +54,10 @@
 
 | 文档 | 对应代码 | 同步状态 |
 |------|----------|----------|
-| `AGENTS.md` | 全仓库规范 | ✅ 最新 |
+| `AGENTS.md` | 入口文件（<100 行） | ✅ 最新 |
+| `docs/toolchain.md` | ESLint/TS/Vitest 规范 | ✅ 最新 |
+| `docs/coding-standards.md` | 编码/3D/Vue 规范 | ✅ 最新 |
+| `docs/workflow.md` | 工作流/ACID/知识衰减 | ✅ 最新 |
 | `DECISIONS.md` | 架构决策 | ✅ 最新 |
 | `packages/core/ARCHITECTURE.md` | `packages/core/src/` | ✅ 最新（待代码填充） |
 | `packages/3d-engine/ARCHITECTURE.md` | `packages/3d-engine/src/` | ✅ 最新（待代码填充） |
