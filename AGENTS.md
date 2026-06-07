@@ -11,6 +11,8 @@
 
 ## 快速开始
 
+> 首次接入请先阅读 [`docs/startup-readiness.md`](docs/startup-readiness.md) 确认环境就绪。
+
 ```bash
 make setup   # 安装依赖
 make dev     # 启动开发服务器（http://localhost:5173）
@@ -32,6 +34,8 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 10. 修改代码时必须**同步更新对应包的 `ARCHITECTURE.md`**
 11. 架构决策必须**写入 `DECISIONS.md`**
 12. 新增包必须有 `eslint.config.js` 且 `package.json` 设置 `"type": "module"`
+13. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
+14. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
 
 ## 目录职责
 
@@ -63,8 +67,27 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 - [工具链配置](docs/toolchain.md) — **修改 ESLint、TypeScript、构建脚本时必读**
 - [编码规范](docs/coding-standards.md) — **编写代码时参考**
+- [启动就绪清单](docs/startup-readiness.md) — **首次接入仓库时必读**
 - [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**
 - [架构决策](DECISIONS.md) — **需要了解历史决策时参考**
+
+## 跨会话交接
+
+上下文窗口有限。长任务跨会话时，新会话没有上一轮记忆，必须通过持久化文件快速重建状态。
+
+**Clock In（会话开始）**：
+1. 读取 `PROGRESS.md` 了解进度、阻塞项和下一步
+2. 读取 `DECISIONS.md` 了解关键决策及原因
+3. 运行 `make check` 确认仓库处于自洽状态
+4. 从 `PROGRESS.md`「下一步」继续工作
+
+**Clock Out（会话结束）**：
+1. 更新 `PROGRESS.md`（进度、验证状态、阻塞项）
+2. 新决策追加到 `DECISIONS.md`
+3. 运行 `make check` 确认自洽状态
+4. 原子提交所有已完成的工作
+
+> 详细策略见 [工作流文档](docs/workflow.md)
 
 ## 关键术语
 
@@ -80,7 +103,8 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 版本历史
 
-- **v1.3.0** — 拆分 `AGENTS.md`，工具链/编码/工作流独立为专题文档，避免巨型指令文件陷阱
-- **v1.2.0** — 引入 Harness Engineering 规则体系（系统记录、ACID、知识衰减防护）
+- **v1.4.0** — 引入跨会话交接（Clock In/Out、状态持久化）
+- **v1.3.0** — 拆分 `AGENTS.md` 为入口文件 + 专题文档
+- **v1.2.0** — 引入 Harness Engineering 规则体系
 - **v1.1.0** — 迁移到 Babylon.js，ESLint 10 Flat Config
 - **v1.0.0** — 初始版本

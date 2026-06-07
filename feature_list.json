@@ -8,7 +8,7 @@
       "status": "todo",
       "priority": "high",
       "domain": "3d-engine",
-      "description": "初始化 Three.js 场景、相机、渲染器、轨道控制器"
+      "description": "初始化 Babylon.js 场景、相机、渲染器、轨道控制器"
     },
     {
       "id": "F002",
