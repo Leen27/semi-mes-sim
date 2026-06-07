@@ -13,6 +13,7 @@
 - **验证状态**: lint ✅ / type-check ✅ / test ✅
 - **活跃分支**: `main`
 - **VCR（验证完成率）**: 5/5 = 100%
+- **Back-Pressure（剩余压力）**: 5/10 = 50%（5 not_started / 10 total）
 - **活跃功能**: 无
 
 | 领域 | 进度 | 说明 |

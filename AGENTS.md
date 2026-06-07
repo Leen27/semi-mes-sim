@@ -38,7 +38,10 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 14. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
 15. **WIP = 1** —— 任何时刻只能有一个功能处于 `active` 状态。完成一个，再开始下一个
 16. **完成证据必须可执行** —— 功能不是「代码写好了」，而是 `feature_list.json` 中定义的 verificationCommand 全部通过
-17. **VCR < 1.0 时禁止激活新任务** —— 验证完成率（Verified Completion Rate）低于 100% 时，必须先让活跃任务达到 `passing`
+17. **VCR < 1.0 时禁止激活新任务** —— 验证完成率低于 100% 时，必须先让活跃任务达到 `passing`
+18. **Agent 不能直接修改 feature 的 `status` 字段** —— 唯一允许的状态转换路径是：先运行所有 `verificationCommand` → 全部通过 → 才能将 `active` 标记为 `passing`。禁止凭感觉改状态
+19. **Feature list 是唯一真实来源** —— 所有「需要做什么」的信息必须来自 `feature_list.json`。代码中的 TODO 注释必须引用 feature ID（如 `// TODO(F004)`），禁止游离的隐式需求
+20. **Back-pressure 不可忽略** —— `scopeSurface.backPressure.totalPending` > 0 时，项目未完成。Agent 不得提前宣告「项目做完了」
 
 ## 目录职责
 
@@ -52,15 +55,49 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 包间依赖：`apps/web` → `core` / `3d-engine` / `ui`；`3d-engine` → `core`（仅类型）；`ui` → `core`（仅类型）
 
-## 工作规则（WIP=1）
+## 工作规则（WIP=1 + Feature List Primitive）
 
-> 规则来源：Lecture 07 — Draw Clear Task Boundaries for Agents
+> 规则来源：Lecture 07 — Draw Clear Task Boundaries for Agents + Lecture 08 — Use Feature Lists to Constrain What the Agent Does
 
-- **一次只做一件事** —— `feature_list.json` 中 `active` 状态的功能只能有一个
-- **完成证据通过才算完成** —— 不要凭「代码看起来没问题」判断完成，必须运行 verificationCommand 并确认通过
-- **不要顺便重构** —— 实现功能 A 时，如果发现功能 B 也需要改，记下来，不要顺手改
-- **依赖未 `passing` 的功能不能启动** —— 检查 `feature_list.json` 中的 `dependencies`，前置条件必须是 `passing`
-- **会话结束时必须更新 `feature_list.json` 和 `PROGRESS.md`** —— 记录当前活跃功能的状态、已通过的完成证据、阻塞原因
+### Feature List 是 Harness 的基础数据结构
+
+`feature_list.json` 不是备忘录，而是整个 Harness 的 primitive：
+- **调度器**依赖它选取下一个 `not_started` 任务
+- **验证器**依赖它执行 `verificationCommand` 判断完成
+- **交接报告**依赖它生成会话摘要
+- **进度追踪器**依赖它计算 VCR 和 back-pressure
+
+**所有「需要做什么」的信息必须来自 `feature_list.json`，不来自对话历史、不来自代码 TODO、不来自 agent 的记忆。**
+
+### Pass-State Gating（状态门控）
+
+状态转换不是 agent 的自由意志，而是由验证结果控制的：
+
+| 转换 | 触发条件 | Agent 能否直接操作 |
+|------|----------|-------------------|
+| `not_started` → `active` | 依赖全部 `passing`，WIP=1 允许 | ✅ 是（选取任务时） |
+| `active` → `passing` | **所有 `verificationCommand` 退出码 0** | ❌ 否（必须先运行验证） |
+| `active` → `blocked` | 依赖变为非 `passing` 或外部阻塞 | ❌ 否 |
+| `blocked` → `active` | 阻塞解除 | ✅ 是（检查依赖后） |
+
+**禁止行为**：agent 不得在未运行 `verificationCommand` 的情况下，直接将 `active` 改为 `passing`。
+
+### 工作循环
+
+1. 从 `feature_list.json` 选取一个 `not_started` 任务（依赖已满足）
+2. 将其标记为 `active`，设置 `activeFeatureId`
+3. 实现代码 + 测试
+4. **运行该功能的所有 `verificationCommand`**
+5. **全部通过后**，才能将其标记为 `passing`，记录 `evidence.passedAt` 和 `evidence.output`
+6. 任一命令失败 → 保持 `active`，修复后继续
+7. 更新 `scopeSurface.vcr` 和 `scopeSurface.backPressure`
+
+### 绝对禁止
+
+- **不要凭感觉改状态** ——「代码看起来没问题」不是 passing 的理由
+- **不要游离的 TODO** —— 代码中的 TODO 必须引用 feature ID：`// TODO(F004)`
+- **不要从对话历史推断需求** —— 需求只在 `feature_list.json` 中
+- **不要提前宣告完成** —— `backPressure.totalPending > 0` 时项目未完成
 
 ## 全新会话测试
 

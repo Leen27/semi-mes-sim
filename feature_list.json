@@ -10,6 +10,14 @@
       "activated": 5,
       "passing": 5,
       "rate": 1.0
+    },
+    "backPressure": {
+      "description": "Number of features not yet passing = pressure on agent",
+      "notStarted": 5,
+      "active": 0,
+      "blocked": 0,
+      "totalPending": 5,
+      "total": 10
     }
   },
   "features": [
@@ -24,15 +32,30 @@
       "completionEvidence": [
         {
           "description": "所有核心类型在 TypeScript 中定义完整",
-          "verificationCommand": "grep -q 'export interface Lot' packages/core/src/models/lot.ts && grep -q 'export interface Equipment' packages/core/src/models/equipment.ts && grep -q 'export interface Recipe' packages/core/src/models/recipe.ts && grep -q 'export interface ProcessStep' packages/core/src/models/process-step.ts"
+          "verificationCommand": "grep -q 'export interface Lot' packages/core/src/models/lot.ts && grep -q 'export interface Equipment' packages/core/src/models/equipment.ts && grep -q 'export interface Recipe' packages/core/src/models/recipe.ts && grep -q 'export interface ProcessStep' packages/core/src/models/process-step.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "单元测试覆盖核心枚举值",
-          "verificationCommand": "cd packages/core && npx vitest run src/models/lot.test.ts"
+          "verificationCommand": "cd packages/core && npx vitest run src/models/lot.test.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "lint + type-check + build 全部通过",
-          "verificationCommand": "cd packages/core && pnpm lint && pnpm type-check && pnpm build"
+          "verificationCommand": "cd packages/core && pnpm lint && pnpm type-check && pnpm build",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         }
       ]
     },
@@ -42,7 +65,7 @@
       "status": "not_started",
       "priority": "high",
       "domain": "core",
-      "description": "实现基于事件的仿真调度引擎（EventQueue + SimulationEngine），驱动 3D 动画",
+      "description": "实现 SimulationEngine 的事件处理逻辑：LotArrival（批次到达分配设备）、EquipmentReady（设备就绪检查等待 Lot）、ProcessComplete（加工完成流转到下一步）、EquipmentBreakdown（设备故障）、EquipmentRepair（设备修复）",
       "dependencies": [
         "F002"
       ],
@@ -72,15 +95,30 @@
       "completionEvidence": [
         {
           "description": "SceneManager 类完整实现并导出",
-          "verificationCommand": "grep -q 'export class SceneManager' packages/3d-engine/src/scene/scene-manager.ts"
+          "verificationCommand": "grep -q 'export class SceneManager' packages/3d-engine/src/scene/scene-manager.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "SceneManager 包含 Engine、Scene、Camera、Lighting、Ground 初始化",
-          "verificationCommand": "grep -q 'new Engine' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new Scene' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new ArcRotateCamera' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'CreateGround' packages/3d-engine/src/scene/scene-manager.ts"
+          "verificationCommand": "grep -q 'new Engine' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new Scene' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'new ArcRotateCamera' packages/3d-engine/src/scene/scene-manager.ts && grep -q 'CreateGround' packages/3d-engine/src/scene/scene-manager.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "lint + type-check + build 全部通过",
-          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         }
       ]
     },
@@ -97,15 +135,30 @@
       "completionEvidence": [
         {
           "description": "createEquipmentModel 函数支持所有 EquipmentType",
-          "verificationCommand": "grep -q 'EquipmentType.Lithography' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Etching' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Deposition' packages/3d-engine/src/assets/equipment-models.ts"
+          "verificationCommand": "grep -q 'EquipmentType.Lithography' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Etching' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentType.Deposition' packages/3d-engine/src/assets/equipment-models.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "FabLayout 类可根据 Equipment[] 创建设备 3D 布局",
-          "verificationCommand": "grep -q 'export class FabLayout' packages/3d-engine/src/assets/fab-layout.ts && grep -q 'createLayout' packages/3d-engine/src/assets/fab-layout.ts"
+          "verificationCommand": "grep -q 'export class FabLayout' packages/3d-engine/src/assets/fab-layout.ts && grep -q 'createLayout' packages/3d-engine/src/assets/fab-layout.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "lint + type-check + build 全部通过",
-          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         }
       ]
     },
@@ -122,15 +175,30 @@
       "completionEvidence": [
         {
           "description": "updateEquipmentStatus 函数根据 EquipmentStatus 切换颜色",
-          "verificationCommand": "grep -q 'updateEquipmentStatus' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Idle' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Processing' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Error' packages/3d-engine/src/assets/equipment-models.ts"
+          "verificationCommand": "grep -q 'updateEquipmentStatus' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Idle' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Processing' packages/3d-engine/src/assets/equipment-models.ts && grep -q 'EquipmentStatus.Error' packages/3d-engine/src/assets/equipment-models.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "颜色映射覆盖所有 EquipmentStatus 枚举值",
-          "verificationCommand": "node -e \"const c = require('./packages/3d-engine/src/assets/equipment-models.ts');\" 2>/dev/null || true; grep -A 20 'EQUIPMENT_COLORS' packages/3d-engine/src/assets/equipment-models.ts | grep -c 'Color3' | awk '{exit ($1 >= 4 ? 0 : 1)}'"
+          "verificationCommand": "node -e \"const c = require('./packages/3d-engine/src/assets/equipment-models.ts');\" 2>/dev/null || true; grep -A 20 'EQUIPMENT_COLORS' packages/3d-engine/src/assets/equipment-models.ts | grep -c 'Color3' | awk '{exit ($1 >= 4 ? 0 : 1)}'",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "lint + type-check + build 全部通过",
-          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build"
+          "verificationCommand": "cd packages/3d-engine && pnpm lint && pnpm type-check && pnpm build",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         }
       ]
     },
@@ -174,15 +242,30 @@
       "completionEvidence": [
         {
           "description": "App.vue 正确挂载 3D Canvas 和 SceneManager",
-          "verificationCommand": "grep -q 'canvas' apps/web/src/App.vue && grep -q 'SceneManager' apps/web/src/App.vue || grep -q 'scene-manager' apps/web/src/App.vue"
+          "verificationCommand": "grep -q 'canvas' apps/web/src/App.vue && grep -q 'SceneManager' apps/web/src/App.vue || grep -q 'scene-manager' apps/web/src/App.vue",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "simulation store 包含完整的 start/pause/reset/setSpeed 行为",
-          "verificationCommand": "grep -q 'start()' apps/web/src/stores/simulation.ts && grep -q 'pause()' apps/web/src/stores/simulation.ts && grep -q 'reset()' apps/web/src/stores/simulation.ts && grep -q 'setSpeed' apps/web/src/stores/simulation.ts"
+          "verificationCommand": "grep -q 'start()' apps/web/src/stores/simulation.ts && grep -q 'pause()' apps/web/src/stores/simulation.ts && grep -q 'reset()' apps/web/src/stores/simulation.ts && grep -q 'setSpeed' apps/web/src/stores/simulation.ts",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         },
         {
           "description": "lint + type-check + build 全部通过",
-          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build"
+          "verificationCommand": "cd apps/web && pnpm lint && pnpm type-check && pnpm build",
+          "evidence": {
+            "passedAt": "2026-06-07T16:06:57.611458",
+            "output": "verified by harness-creator diagnostic",
+            "commit": null
+          }
         }
       ]
     },

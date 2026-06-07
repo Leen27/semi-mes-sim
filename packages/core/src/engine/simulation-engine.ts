@@ -171,7 +171,7 @@ export class SimulationEngine {
    * 处理单个事件
    */
   private processEvent(event: SimulationEvent): void {
-    // TODO: 实现具体的事件处理逻辑
+    // TODO(F004): 实现离散事件处理逻辑
     // - LotArrival: 将 Lot 分配到可用设备
     // - EquipmentReady: 设备就绪，检查是否有等待的 Lot
     // - ProcessComplete: 加工完成，Lot 移动到下一步

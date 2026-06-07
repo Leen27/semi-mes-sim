@@ -71,6 +71,60 @@ cd packages/core && pnpm lint && pnpm type-check && pnpm build
 - **VCR < 1.0 时禁止激活新任务** —— 必须先让活跃任务达到 `passing`
 - 每次会话结束必须在 `PROGRESS.md` 中记录当前 VCR
 
+### Back-Pressure 监控
+
+> Back-pressure = 未通过的功能数量 = Harness 对 agent 施加的压力。
+
+```
+backPressure = notStarted + active + blocked
+total = len(features)
+pressureRatio = backPressure / total
+```
+
+- **Zero back-pressure = 项目完成**
+- `feature_list.json` 中 `scopeSurface.backPressure` 必须每次会话更新
+- Agent 不得在 `backPressure.totalPending > 0` 时宣称「项目做完了」
+
+### Feature List 是 Harness 的 Primitive
+
+> 规则来源：Lecture 08 — Use Feature Lists to Constrain What the Agent Does
+
+`feature_list.json` 不是备忘录，而是整个 Harness 的基础数据结构。四个组件都依赖它：
+
+| 组件 | 从 feature list 读取什么 | 如果没有会怎样 |
+|------|------------------------|--------------|
+| **调度器** | 状态 → 选取 `not_started` | Agent 不知道下一步做什么 |
+| **验证器** | `verificationCommand` → 判断完成 | Agent 凭感觉说「做完了」 |
+| **交接报告** | 状态分布 → 生成 handoff 摘要 | 新会话花 20 分钟推断状态 |
+| **进度追踪** | VCR + back-pressure → 健康指标 | 无法衡量项目真实进度 |
+
+**单一真实来源原则**：
+- 所有「需要做什么」的信息只来自 `feature_list.json`
+- 代码中的 TODO 必须引用 feature ID：`// TODO(F004)`
+- 禁止从对话历史、代码注释或 agent 记忆中推断需求
+
+### Pass-State Gating（状态门控）
+
+状态转换不是 agent 的自由意志，而是由验证结果控制：
+
+```
+not_started --[agent picks task]--> active --[run verificationCommand]--> ?
+                                                                    |
+                                                        all pass ---+--> passing
+                                                        any fail ---+--> active (keep)
+```
+
+**Agent 权限矩阵**：
+
+| 转换 | 触发条件 | Agent 权限 |
+|------|----------|-----------|
+| `not_started` → `active` | 依赖全部 `passing`，WIP ≤ 1 | ✅ 允许 |
+| `active` → `passing` | **所有 `verificationCommand` 退出码 0** | ❌ **禁止直接操作** |
+| `active` → `blocked` | 依赖变非 `passing` 或外部阻塞 | ❌ 禁止 |
+| `blocked` → `active` | 阻塞解除 | ✅ 允许 |
+
+**关键规则**：agent 必须先运行 `verificationCommand`，确认全部通过后，才能更新 `status` 为 `passing` 并记录 `evidence`。禁止凭感觉改状态。
+
 ---
 
 ## 初始化阶段 vs 功能实现阶段
