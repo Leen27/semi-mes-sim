@@ -147,9 +147,9 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 
 ---
 
-## 添加新功能的步骤（WIP=1 + 三层验证模式）
+## 添加新功能的步骤（WIP=1 + 四层验证模式）
 
-> 规则来源：Lecture 07 + Lecture 08 + Lecture 09
+> 规则来源：Lecture 07 + Lecture 08 + Lecture 09 + Lecture 10
 
 1. **读取 `feature_list.json`** — 确认当前 `activeFeatureId` 和 `scopeSurface.vcr`
 2. **检查 WIP 限制** — 如果有 `active` 任务，继续完成它；如果没有，选取下一个 `not_started` 任务
@@ -157,14 +157,15 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 4. **标记为 `active`** — 更新 `feature_list.json` 中的 `activeFeatureId` 和该任务状态
 5. **在正确的包和目录中实现代码**
 6. **同步更新文档** — 检查该包 `ARCHITECTURE.md`，如有接口/约束变更必须同步修改
-7. **Layer 1 验证** — 运行 `pnpm lint` 和 `pnpm type-check`
-8. **Layer 2 验证** — 运行单元测试和构建（`pnpm test` + `pnpm build`）
-9. **Layer 3 验证** — 运行端到端验证（应用启动、关键路径执行）
-10. **功能级验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
-11. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
-12. **标记为 `passing`** — 所有验证通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
-13. **更新 `PROGRESS.md`** 和 VCR
-14. **原子提交**：一次 commit 包含代码+测试+文档的完整变更
+7. **Layer 0 验证** — 运行 `scripts/verify-architecture.sh` 确认未违反架构边界
+8. **Layer 1 验证** — 运行 `pnpm lint` 和 `pnpm type-check`
+9. **Layer 2 验证** — 运行单元测试和构建（`pnpm test` + `pnpm build`）
+10. **Layer 3 验证** — 运行端到端验证（`scripts/verify-layers.sh` 的 Layer 3：构建产物 + 跨组件符号检查）
+11. **功能级验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
+12. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
+13. **标记为 `passing`** — 所有验证通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
+14. **更新 `PROGRESS.md`** 和 VCR
+15. **原子提交**：一次 commit 包含代码+测试+文档的完整变更
 
 > **禁止行为**：
 > - 不要「顺便」重构不相关的文件。发现 B 也需要改？记下来，等 A 完成后再说。
@@ -172,6 +173,82 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 > - **核心功能验证通过前禁止重构** — 先让功能通过所有测试，再考虑优化
 
 ---
+
+## 端到端测试是真正的验证（Lecture 10）
+
+> 规则来源：Lecture 10 — Only a Full Pipeline Run Counts as Real Verification
+
+### 单元测试的系统性盲区
+
+单元测试的设计哲学是**隔离**：mock 依赖，聚焦被测单元。这带来速度和精确性，但也制造了系统性盲区：
+
+| 盲区类型 | 示例 | 单元测试 | 端到端 |
+|----------|------|----------|--------|
+| **接口不匹配** | core 传相对路径，web 期望绝对路径 | 通过（各自 mock） | **暴露** |
+| **状态传播错误** | 仿真状态变更未正确反映到 UI store | 通过（独立状态） | **暴露** |
+| **资源生命周期** | 3D 场景未在组件卸载时 dispose | 通过（独立资源） | **暴露** |
+| **环境依赖** | 构建产物中缺少跨包符号 | 通过（本地源码） | **暴露** |
+
+**结论**：跨组件变更（涉及 2 个以上包的修改）必须通过 Layer 3 端到端验证。
+
+### 端到端验证改变编码行为
+
+当 agent 知道工作将通过端到端测试验证时，编码行为会发生转变：
+
+1. **主动考虑组件交互** — 写代码时会问「这个接口和上游怎么连？」而非孤立地优化单个函数
+2. **尊重架构边界** — 知道 `scripts/verify-architecture.sh` 会检查，不会随意把 Vue 引入 core
+3. **处理错误路径** — 端到端测试通常包含失败场景，迫使思考异常处理
+
+### 验证层级定义
+
+```
+Layer 0: Architecture Boundaries  → verify-architecture.sh
+         (core 不依赖 UI, 3d-engine 不依赖 Vue, workspace:* 协议)
+Layer 1: Syntax & Static Analysis → lint + type-check
+Layer 2: Runtime Behavior         → unit tests + build
+Layer 3: System-Level Integration → build artifacts + cross-component symbols
+```
+
+**跨组件变更时，跳过 Layer 3 = 未完成。**
+
+## 审查反馈提升（Review Feedback Promotion）
+
+> 规则来源：Lecture 10 — 将反复出现的审查评论转化为自动化检查
+
+每次发现 agent 的**新类别错误**时，按照以下流程将其永久化：
+
+```
+Code Review 发现反复出现的问题
+        ↓
+写成可执行检查脚本（或 ESLint 规则）
+        ↓
+错误消息必须包含 FIX 指令（告诉 agent 如何修改）
+        ↓
+加入 verify-architecture.sh 或 verify-layers.sh
+        ↓
+下次同类问题自动失败，Harness 自动变强
+```
+
+**示例**：发现 agent 在 `packages/core` 中引入了 Vue 类型导入。
+- **旧方式**：审查评论「core 不能依赖 Vue」→ 下次可能再犯
+- **新方式**：在 `verify-architecture.sh` 中添加 Rule 1
+  ```
+  ERROR: Found 'import from vue' in packages/core/src/
+  WHY: @semi/core must be pure TypeScript. UI imports violate layer boundaries.
+  FIX: Move Vue-related logic to apps/web or packages/ui. Core should only use plain TypeScript.
+  ```
+
+### Agent 面向的错误消息设计
+
+所有自动化检查的**失败消息**必须包含三个元素：
+
+1. **WHAT** — 发现了什么问题
+2. **WHY** — 为什么这是问题（架构原则）
+3. **FIX** — 具体怎么修改（可执行的步骤）
+
+> **反例**：`"Direct filesystem access in renderer"`
+> 
+> **正例**：`"Direct filesystem access in renderer. All file operations must go through the preload bridge. Move this call to preload/file-ops.ts and invoke it via window.api."`
 
 ## 遇到问题的处理
 

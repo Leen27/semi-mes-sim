@@ -108,6 +108,25 @@
   - TypeScript 6 的 `baseUrl` 弃用需要所有 `paths` 使用相对路径
   - Babylon.js 从 7 升级到 9 是大版本跳跃，需关注后续 breaking changes
 
+## ADR-009：将架构规则转化为可执行检查（Lecture 10）
+
+- **状态**: 已接受
+- **日期**: 2026-06-07
+- **背景**: AGENTS.md 中列出了 20+ 条硬约束，但大部分仅靠「agent 阅读文档」来遵守。Agent 在上下文压力大时容易忽略约束，导致反复出现同类违规（如将 Vue 导入 core、忘记更新 index.d.ts）。
+- **决策**:
+  1. 创建 `scripts/verify-architecture.sh`，将架构边界规则自动检查化
+  2. 每条检查包含 WHAT/WHY/FIX 面向 agent 的错误消息
+  3. 将 `verify-architecture.sh` 作为 Layer 0 嵌入 `verify-layers.sh`
+  4. 强化 Layer 3：不只是「构建产物存在」，而是「跨组件符号在 web bundle 中可检测」
+- **拒绝的替代方案**:
+  - 继续依赖 agent 自律阅读 AGENTS.md（约束在上下文压力大时被系统性忽略）
+  - 使用 ESLint 插件做所有架构检查（部分规则如 workspace:* 协议、.glb 文件存在性超出了 ESLint 的语义范围，shell 脚本更合适）
+- **后果**:
+  - 架构违规在 CI 阶段即被拦截，无法进入后续层
+  - 错误消息的自校正设计使 agent 能在无人工干预下修复大部分违规
+  - Harness 会随审查反馈持续提升（每发现新类别错误 → 加入脚本 → 永久防御）
+  - 构建时间略有增加（<1 秒），在 agent 工作流中完全可接受
+
 ## ADR-008：引入 WIP=1 与范围表面外化
 
 - **状态**: 已接受

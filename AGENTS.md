@@ -22,29 +22,45 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 硬约束（不可违反）
 
+### 架构边界（Lecture 10 — 架构规则必须可执行）
+
 1. `@semi/core` **必须是纯 TypeScript**，禁止依赖 Vue、Babylon.js 等任何 UI 库
 2. **3D 引擎必须是 Babylon.js 9.x**，不是 Three.js
-3. **ESLint 10 Flat Config**，lint 脚本格式必须是 `"eslint src"`，禁止 `--ext`
-4. `tsconfig.json` 中的 `paths` **必须指向 `dist/` 或 `index.d.ts`**，禁止指向 `src/`
-5. `@semi/ui` 组件修改后**必须同步更新 `index.d.ts`**
-6. 所有 3D 对象**必须设置 `name` 属性**
+3. `@semi/3d-engine` **禁止依赖 Vue**（纯 Babylon.js + TypeScript）
+4. `@semi/ui` **禁止依赖 `apps/web`**（UI 是被消费的库，不能反向依赖应用）
+5. 本地包引用**必须使用 `workspace:*` 协议**
+6. `tsconfig.json` 中的 `paths` **必须指向 `dist/` 或 `index.d.ts`**，禁止指向 `src/`
 7. 设备模型使用 `MeshBuilder` 基础几何体，**禁止引入外部 `.glb`/`.gltf` 文件**
-8. 本地包引用**必须使用 `workspace:*` 协议**
-9. 提交前必须 `make check`（lint + type-check + test）**全部通过**
-10. 修改代码时必须**同步更新对应包的 `ARCHITECTURE.md`**
-11. 架构决策必须**写入 `DECISIONS.md`**
-12. 新增包必须有 `eslint.config.js` 且 `package.json` 设置 `"type": "module"`
-13. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
-14. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
-15. **WIP = 1** —— 任何时刻只能有一个功能处于 `active` 状态。完成一个，再开始下一个
-16. **完成证据必须可执行** —— 功能不是「代码写好了」，而是 `feature_list.json` 中定义的 verificationCommand 全部通过
-17. **VCR < 1.0 时禁止激活新任务** —— 验证完成率低于 100% 时，必须先让活跃任务达到 `passing`
-18. **Agent 不能直接修改 feature 的 `status` 字段** —— 唯一允许的状态转换路径是：先运行所有 `verificationCommand` → 全部通过 → 才能将 `active` 标记为 `passing`。禁止凭感觉改状态
-19. **Feature list 是唯一真实来源** —— 所有「需要做什么」的信息必须来自 `feature_list.json`。代码中的 TODO 注释必须引用 feature ID（如 `// TODO(F004)`），禁止游离的隐式需求
-20. **Back-pressure 不可忽略** —— `scopeSurface.backPressure.totalPending` > 0 时，项目未完成。Agent 不得提前宣告「项目做完了」
-21. **三层验证全部通过才算完成** —— Layer 1（lint+type-check）→ Layer 2（单元测试+构建）→ Layer 3（端到端/应用启动）。Layer N 未通过前不得进入 Layer N+1
-22. **Agent 不能自行宣布「完成了」** —— 完成判断由 harness 外部化执行。只有 `scripts/verify-layers.sh` 全部通过（或 feature 自身的 `verificationCommand` 全部通过）后，才能标记为 passing
-23. **核心功能验证通过前禁止重构** —— 不要「顺便优化」未验证的代码。先让功能通过所有测试，再考虑重构
+8. 所有 3D 对象**必须设置 `name` 属性**
+
+> **架构边界是自动检查的**：`scripts/verify-architecture.sh` 会在每次 `verify-layers.sh` 时运行。任何违反都会在错误消息中说明 **WHAT / WHY / FIX**，形成自校正反馈循环。
+
+### 工具链与代码规范
+
+9. **ESLint 10 Flat Config**，lint 脚本格式必须是 `"eslint src"`，禁止 `--ext`
+10. `@semi/ui` 组件修改后**必须同步更新 `index.d.ts`**
+11. 新增包必须有 `eslint.config.js` 且 `package.json` 设置 `"type": "module"`
+
+### 验证与完成（Lecture 10 — 只有端到端测试才是真正的验证）
+
+12. 提交前必须 `make check`（lint + type-check + test）**全部通过**
+13. **三层验证全部通过才算完成** —— Layer 0（架构边界）→ Layer 1（lint+type-check）→ Layer 2（单元测试+构建）→ Layer 3（端到端/跨组件集成）。**Layer N 未通过前不得进入 Layer N+1**
+14. **跨组件变更必须通过端到端验证** —— 涉及多个包的修改，Layer 3 的跨组件符号检查（web bundle 包含 core/3d-engine/ui 的关键导出）为强制通过项
+15. **Agent 不能自行宣布「完成了」** —— 完成判断由 harness 外部化执行。只有 `scripts/verify-layers.sh` 全部通过后，才能标记为 passing
+16. **核心功能验证通过前禁止重构** —— 不要「顺便优化」未验证的代码。先让功能通过所有测试，再考虑优化
+
+### 工作流与状态管理
+
+17. **WIP = 1** —— 任何时刻只能有一个功能处于 `active` 状态。完成一个，再开始下一个
+18. **完成证据必须可执行** —— 功能不是「代码写好了」，而是 `feature_list.json` 中定义的 verificationCommand 全部通过
+19. **VCR < 1.0 时禁止激活新任务** —— 验证完成率低于 100% 时，必须先让活跃任务达到 `passing`
+20. **Agent 不能直接修改 feature 的 `status` 字段** —— 唯一允许的状态转换路径是：先运行所有 `verificationCommand` → 全部通过 → 才能将 `active` 标记为 `passing`。禁止凭感觉改状态
+21. **Feature list 是唯一真实来源** —— 所有「需要做什么」的信息必须来自 `feature_list.json`。代码中的 TODO 注释必须引用 feature ID（如 `// TODO(F004)`），禁止游离的隐式需求
+22. **Back-pressure 不可忽略** —— `scopeSurface.backPressure.totalPending` > 0 时，项目未完成。Agent 不得提前宣告「项目做完了」
+23. 修改代码时必须**同步更新对应包的 `ARCHITECTURE.md`**
+24. 架构决策必须**写入 `DECISIONS.md`**
+25. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
+26. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
 
 ## 目录职责
 
@@ -121,8 +137,9 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 - [工具链配置](docs/toolchain.md) — **修改 ESLint、TypeScript、构建脚本时必读**
 - [编码规范](docs/coding-standards.md) — **编写代码时参考**
 - [启动就绪清单](docs/startup-readiness.md) — **首次接入仓库时必读**
-- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**
+- [工作流与 ACID](docs/workflow.md) — **执行任务、提交代码前必读**（含端到端验证层级、审查反馈提升）
 - [架构决策](DECISIONS.md) — **需要了解历史决策时参考**
+- [架构边界检查](scripts/verify-architecture.sh) — **可执行的架构规则**（Agent 错误时直接运行查看 FIX 指令）
 
 ## 跨会话交接
 
@@ -161,6 +178,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 版本历史
 
+- **v1.6.0** — 引入可执行架构边界检查（Lecture 10），端到端验证为强制门控
 - **v1.5.0** — 引入 WIP=1、完成证据、VCR 监控（Lecture 07）
 - **v1.4.0** — 引入跨会话交接（Clock In/Out、状态持久化）
 - **v1.3.0** — 拆分 `AGENTS.md` 为入口文件 + 专题文档

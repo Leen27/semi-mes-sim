@@ -9,8 +9,8 @@
 
 ## 当前状态
 
-- **最新 commit**: `HEAD`（harness-creator 诊断与状态修正）
-- **验证状态**: lint ✅ / type-check ✅ / test ✅
+- **最新 commit**: `HEAD`（Lecture 10 架构边界检查引入）
+- **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅
 - **活跃分支**: `main`
 - **VCR（验证完成率）**: 5/5 = 100%
 - **Back-Pressure（剩余压力）**: 5/10 = 50%（5 not_started / 10 total）
@@ -41,6 +41,11 @@
   - EventQueue 单元测试（8 tests）— 发现了排序稳定性问题
   - SimulationEngine 生命周期测试（12 tests）— **发现了 reset() 未重置 speed 的 bug**
   - 修复 reset() speed 未重置的问题
+- [x] **可执行架构边界检查**（Lecture 10）
+  - `scripts/verify-architecture.sh`：7 条自动检查（core 纯度、3d-engine Vue 隔离、ui 方向、workspace:*、无 .glb、命名启发式、paths 目标）
+  - 所有错误消息包含 WHAT/WHY/FIX（面向 agent 的自校正设计）
+  - `verify-layers.sh` 增强为四层：Layer 0 架构边界 → Layer 1 静态 → Layer 2 运行时 → Layer 3 端到端（跨组件符号检测）
+  - ADR-009 记录决策
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置
