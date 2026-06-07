@@ -1,6 +1,6 @@
 # Sprint Contract Template
 
-> 规则来源：Lecture 11 — Sprint contracts front-load alignment.
+> 规则来源：Sprint contracts front-load alignment.
 > 每个功能在开始实现前，必须基于本模板生成具体的 Sprint Contract。
 
 ---

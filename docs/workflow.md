@@ -4,7 +4,7 @@
 
 ## WIP=1 工作流（核心规则）
 
-> 规则来源：Lecture 07 — Draw Clear Task Boundaries for Agents
+> 规则来源：Draw Clear Task Boundaries for Agents
 
 ### 状态机
 
@@ -87,7 +87,7 @@ pressureRatio = backPressure / total
 
 ### Feature List 是 Harness 的 Primitive
 
-> 规则来源：Lecture 08 — Use Feature Lists to Constrain What the Agent Does
+> 规则来源：Use Feature Lists to Constrain What the Agent Does
 
 `feature_list.json` 不是备忘录，而是整个 Harness 的基础数据结构。四个组件都依赖它：
 
@@ -149,7 +149,7 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 
 ## 添加新功能的步骤（WIP=1 + 四层验证模式）
 
-> 规则来源：Lecture 07 + Lecture 08 + Lecture 09 + Lecture 10
+> 规则来源：WIP=1 工作流 + Feature List Primitive + 四层验证模式
 
 1. **读取 `feature_list.json`** — 确认当前 `activeFeatureId` 和 `scopeSurface.vcr`
 2. **检查 WIP 限制** — 如果有 `active` 任务，继续完成它；如果没有，选取下一个 `not_started` 任务
@@ -181,9 +181,9 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 
 ---
 
-## 端到端测试是真正的验证（Lecture 10）
+## 端到端测试是真正的验证
 
-> 规则来源：Lecture 10 — Only a Full Pipeline Run Counts as Real Verification
+> 规则来源：Only a Full Pipeline Run Counts as Real Verification
 
 ### 单元测试的系统性盲区
 
@@ -220,7 +220,7 @@ Layer 3: System-Level Integration → build artifacts + cross-component symbols
 
 ## 审查反馈提升（Review Feedback Promotion）
 
-> 规则来源：Lecture 10 — 将反复出现的审查评论转化为自动化检查
+> 规则来源：将反复出现的审查评论转化为自动化检查
 
 每次发现 agent 的**新类别错误**时，按照以下流程将其永久化：
 
@@ -257,9 +257,9 @@ Code Review 发现反复出现的问题
 > 
 > **正例**：`"Direct filesystem access in renderer. All file operations must go through the preload bridge. Move this call to preload/file-ops.ts and invoke it via window.api."`
 
-## 可观测性与结构化评估（Lecture 11）
+## 可观测性与结构化评估
 
-> 规则来源：Lecture 11 — Making the Agent's Runtime Observable
+> 规则来源：Making the Agent's Runtime Observable
 >
 > **可观测性是 Harness 的架构属性**，不是事后添加的功能。没有可观测性，agent 在不确定性中做决策，评估变成主观判断，重试变成盲目试探。
 
@@ -343,9 +343,9 @@ bash scripts/harness-trace.sh finalize
 2. **日志格式不一致** — 不同会话使用不同格式，无法系统分析
 3. **过程可观测性无法通过日志解决** — Sprint Contract 和 Rubric 是需要 harness 支持的结构化产物
 
-## 定期清理循环与 Harness 简化（Lecture 12）
+## 定期清理循环与 Harness 简化
 
-> 规则来源：Lecture 12 — Technical debt is a high-interest loan. Continuously paying it off in small increments is almost always better than letting it accumulate into one massive payoff event.
+> 规则来源：Technical debt is a high-interest loan. Continuously paying it off in small increments is almost always better than letting it accumulate into one massive payoff event.
 
 ### 双模式清理策略
 
@@ -434,7 +434,7 @@ bash scripts/harness-trace.sh finalize
 
 **Clock Out（会话结束）—— 五维度干净状态检查**：
 
-> 规则来源：Lecture 12 — Clean state is a necessary condition for session completion.
+> 规则来源：Clean state is a necessary condition for session completion.
 
 - [ ] **维度 1: 构建通过** — `make build` 通过，无编译错误
 - [ ] **维度 2: 测试通过** — `make test` 通过，包括已有测试不被破坏

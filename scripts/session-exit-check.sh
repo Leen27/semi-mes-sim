@@ -1,7 +1,7 @@
 #!/bin/bash
 # Session Exit Checklist — Five Dimensions of Clean State
 # ========================================================
-# Lecture 12: Leave a Clean Handoff at the End of Every Session
+# Leave a Clean Handoff at the End of Every Session
 #
 # A session is NOT "done" until all five dimensions pass.
 # Missing any one means the next session will spend time fixing

@@ -9,7 +9,7 @@
 
 ## 当前状态
 
-- **最新 commit**: `HEAD`（Lecture 12 干净状态检查引入）
+- **最新 commit**: `HEAD`（干净状态检查引入）
 - **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅ / observability ✅ / clean-state ✅
 - **活跃分支**: `main`
 - **VCR（验证完成率）**: 5/5 = 100%
@@ -36,24 +36,24 @@
   - **注意**: F005 代码已存在且验证通过，但其依赖 F004（仿真引擎）的事件处理仍是 TODO。这是初始化阶段遗留的技术债务，不影响 F005 自身的完成证据。
 - [x] **F006**: 设备状态可视化 (`3d-engine`)
   - 完成证据: updateEquipmentStatus 函数 ✅ / 颜色映射覆盖 ✅ / lint+type-check+build ✅
-- [x] **三层验证体系建立**（Lecture 09）
+- [x] **三层验证体系建立**
   - `scripts/verify-layers.sh` 脚本（Layer 1 lint/type-check → Layer 2 test/build → Layer 3 artifacts）
   - EventQueue 单元测试（8 tests）— 发现了排序稳定性问题
   - SimulationEngine 生命周期测试（12 tests）— **发现了 reset() 未重置 speed 的 bug**
   - 修复 reset() speed 未重置的问题
-- [x] **可执行架构边界检查**（Lecture 10）
+- [x] **可执行架构边界检查**
   - `scripts/verify-architecture.sh`：7 条自动检查（core 纯度、3d-engine Vue 隔离、ui 方向、workspace:*、无 .glb、命名启发式、paths 目标）
   - 所有错误消息包含 WHAT/WHY/FIX（面向 agent 的自校正设计）
   - `verify-layers.sh` 增强为四层：Layer 0 架构边界 → Layer 1 静态 → Layer 2 运行时 → Layer 3 端到端（跨组件符号检测）
   - ADR-009 记录决策
-- [x] **运行时与过程可观测性**（Lecture 11）
+- [x] **运行时与过程可观测性**
   - `scripts/harness-trace.sh`：任务追踪记录器，生成结构化 JSON trace（.harness/traces/）
   - `.harness/contracts/template.md`：Sprint Contract 模板，编码前对齐范围与验收标准
   - `.harness/rubrics/default.json`：五维度 Evaluator Rubric（代码正确性 30%、架构合规性 25%、测试覆盖 20%、文档同步 15%、端到端验证 10%）
   - `scripts/evaluate-feature.sh`：基于 Rubric 的结构化评分工具
   - `verify-layers.sh` 自动集成 trace 记录（每层结果、耗时、错误）
   - ADR-010 记录决策
-- [x] **干净状态检查与定期清理**（Lecture 12）
+- [x] **干净状态检查与定期清理**
   - `scripts/session-exit-check.sh`：五维度干净状态检查（构建/测试/进度/产物/启动）
   - `scripts/session-cleanup.sh`：幂等清理脚本（临时文件、debug 代码、空目录、过期 trace）
   - `docs/quality.md`：模块质量追踪文档（core=A, 3d-engine=C, ui=C, web=C, infra=A）
@@ -101,7 +101,7 @@
 1. **F004 processEvent 是 TODO** — `packages/core/src/engine/simulation-engine.ts` 第 136-146 行的事件处理逻辑为空实现。需要实现 LotArrival、EquipmentReady、ProcessComplete、EquipmentBreakdown、EquipmentRepair 五种事件的处理逻辑。
 2. **F007 动画系统缺控制功能** — `packages/3d-engine/src/animation/animation-system.ts` 有 `play()` 和 `stop()`，但没有 `pause()`、`setSpeed()`、`reverse()` 方法。
 
-## 验证债务（Lecture 09）
+## 验证债务
 
 > 验证债务 = passing 的功能中，verificationCommand 以 Layer 1（grep/静态检查）为主的数量。
 

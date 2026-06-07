@@ -1,7 +1,7 @@
 #!/bin/bash
 # Harness Trace Recorder
 # =======================
-# Lecture 11: Making the Agent's Runtime Observable
+# Making the Agent's Runtime Observable
 #
 # Records structured task traces for every agent session.
 # Each trace is a JSON file in .harness/traces/ that captures:

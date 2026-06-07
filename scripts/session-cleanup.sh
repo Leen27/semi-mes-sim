@@ -1,7 +1,7 @@
 #!/bin/bash
 # Session Cleanup — Idempotent Entropy Reduction
 # ===============================================
-# Lecture 12: "Clean up later" means never clean up.
+# "Clean up later" means never clean up.
 #
 # This script performs idempotent cleanup operations that are safe
 # to run repeatedly. It removes temporary artifacts, checks for

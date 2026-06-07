@@ -1,6 +1,6 @@
 {
   "rubricVersion": "1.0.0",
-  "description": "Default evaluator rubric for Semi-MES-Sim features. Based on Lecture 11: scoring rubrics make evaluation reproducible.",
+  "description": "Default evaluator rubric for Semi-MES-Sim features. Scoring rubrics make evaluation reproducible.",
   "dimensions": [
     {
       "id": "code-correctness",

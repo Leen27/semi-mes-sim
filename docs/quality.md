@@ -1,6 +1,6 @@
 # 质量文档（Quality Document）
 
-> 规则来源：Lecture 12 — Maintain a Quality Document
+> 规则来源：Maintain a Quality Document
 >
 > 本文档是**主动 artifact**，持续记录每个模块的质量评级。不是一次性评估，而是跟踪代码库是变强还是变弱的追踪器。
 > 
@@ -144,4 +144,4 @@ Week 4 (当前):        core=A, 3d-engine=C, ui=C, web=C, infra=A
 
 | 日期 | 更新者 | 变更 |
 |------|--------|------|
-| 2026-06-07 | agent | 初始版本，基于 Lecture 12 创建 |
+| 2026-06-07 | agent | 初始版本 |

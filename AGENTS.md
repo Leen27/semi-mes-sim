@@ -22,7 +22,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 硬约束（不可违反）
 
-### 架构边界（Lecture 10 — 架构规则必须可执行）
+### 架构边界（架构规则必须可执行）
 
 1. `@semi/core` **必须是纯 TypeScript**，禁止依赖 Vue、Babylon.js 等任何 UI 库
 2. **3D 引擎必须是 Babylon.js 9.x**，不是 Three.js
@@ -41,7 +41,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 10. `@semi/ui` 组件修改后**必须同步更新 `index.d.ts`**
 11. 新增包必须有 `eslint.config.js` 且 `package.json` 设置 `"type": "module"`
 
-### 验证与完成（Lecture 10 — 只有端到端测试才是真正的验证）
+### 验证与完成（只有端到端测试才是真正的验证）
 
 12. 提交前必须 `make check`（lint + type-check + test）**全部通过**
 13. **三层验证全部通过才算完成** —— Layer 0（架构边界）→ Layer 1（lint+type-check）→ Layer 2（单元测试+构建）→ Layer 3（端到端/跨组件集成）。**Layer N 未通过前不得进入 Layer N+1**
@@ -62,13 +62,13 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 25. 跨会话任务**必须更新 `PROGRESS.md`**，记录当前进度、验证状态和下一步
 26. 新会话开始前**必须阅读 `docs/startup-readiness.md`** 确认四项基本条件
 
-### 可观测性（Lecture 11 — 可观测性是 Harness 的架构属性）
+### 可观测性（可观测性是 Harness 的架构属性）
 
 27. **每次会话必须生成 Task Trace** — 使用 `scripts/harness-trace.sh` 记录会话的完整决策路径。trace 文件位于 `.harness/traces/`，是会话交接的关键产物
 28. **每个功能必须通过 Evaluator Rubric 评分** — 不是"看起来对了"，而是五个维度（代码正确性、架构合规性、测试覆盖、文档同步、端到端验证）的结构化评分
 29. **跨会话交接必须包含 trace 文件** — 新会话通过阅读最新 trace 文件，可在 3 分钟内重建上一轮状态，避免 30-50% 的冗余诊断时间
 
-### 干净状态（Lecture 12 — 每次会话结束必须留下干净交接）
+### 干净状态（每次会话结束必须留下干净交接）
 
 30. **会话完成 = 任务验证通过 + 干净状态检查通过** — 缺一不可。运行 `scripts/session-exit-check.sh` 确认五维度全部通过
 31. **五维度干净状态**：(1) 构建通过 (2) 测试通过 (3) 进度已记录 (4) 无陈旧产物 (5) 启动路径可用
@@ -91,7 +91,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 工作规则（WIP=1 + Feature List Primitive）
 
-> 规则来源：Lecture 07 — Draw Clear Task Boundaries for Agents + Lecture 08 — Use Feature Lists to Constrain What the Agent Does
+> 规则来源：Draw Clear Task Boundaries for Agents + Use Feature Lists to Constrain What the Agent Does
 
 ### Feature List 是 Harness 的基础数据结构
 
@@ -198,10 +198,10 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 
 ## 版本历史
 
-- **v1.8.0** — 引入干净状态检查（Lecture 12）：五维度退出检查、幂等清理、质量文档、Harness 简化机制
-- **v1.7.0** — 引入运行时与过程可观测性（Lecture 11）：Task Trace、Sprint Contract、Evaluator Rubric
-- **v1.6.0** — 引入可执行架构边界检查（Lecture 10），端到端验证为强制门控
-- **v1.5.0** — 引入 WIP=1、完成证据、VCR 监控（Lecture 07）
+- **v1.8.0** — 引入干净状态检查：五维度退出检查、幂等清理、质量文档、Harness 简化机制
+- **v1.7.0** — 引入运行时与过程可观测性：Task Trace、Sprint Contract、Evaluator Rubric
+- **v1.6.0** — 引入可执行架构边界检查，端到端验证为强制门控
+- **v1.5.0** — 引入 WIP=1、完成证据、VCR 监控
 - **v1.4.0** — 引入跨会话交接（Clock In/Out、状态持久化）
 - **v1.3.0** — 拆分 `AGENTS.md` 为入口文件 + 专题文档
 - **v1.2.0** — 引入 Harness Engineering 规则体系

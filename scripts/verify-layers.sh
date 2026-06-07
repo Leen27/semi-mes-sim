@@ -1,7 +1,7 @@
 #!/bin/bash
 # Three-Layer Termination Validation + Architecture Boundary Enforcement
 # ======================================================================
-# Lecture 10: Only a Full Pipeline Run Counts as Real Verification
+# Only a Full Pipeline Run Counts as Real Verification
 #
 # Layer 0: Architecture Boundary Enforcement (executable rules from AGENTS.md)
 # Layer 1: Syntax & Static Analysis (lint + type-check)

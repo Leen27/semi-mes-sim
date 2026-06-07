@@ -1,7 +1,7 @@
 #!/bin/bash
 # Feature Evaluator — Structured Scoring Based on Evidence
 # =========================================================
-# Lecture 11: Evaluator rubrics transform quality evaluation from subjective
+# Evaluator rubrics transform quality evaluation from subjective
 # judgment into evidence-based structured scoring.
 #
 # Usage:

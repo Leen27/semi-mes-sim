@@ -1,7 +1,7 @@
 #!/bin/bash
 # Architecture Boundary Enforcement
 # ==================================
-# Lecture 10: Only a Full Pipeline Run Counts as Real Verification
+# Only a Full Pipeline Run Counts as Real Verification
 # 
 # This script turns architectural rules from AGENTS.md into executable checks.
 # Every failure message includes: WHAT went wrong, WHY it matters, and HOW to fix it.
