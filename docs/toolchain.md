@@ -78,7 +78,7 @@ import tsParser from '@typescript-eslint/parser'
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@semi/ui": ["../../packages/ui/index.d.ts"],
       "@semi/core": ["../../packages/core/dist/index.d.ts"],
       "@semi/3d-engine": ["../../packages/3d-engine/dist/index.d.ts"]
@@ -91,6 +91,7 @@ import tsParser from '@typescript-eslint/parser'
 - `@semi/ui` 指向 `packages/ui/index.d.ts`（手动维护的 Vue 组件类型声明）
 - `@semi/core` 和 `@semi/3d-engine` 指向各自 `dist/index.d.ts`（由 tsc 自动生成）
 - **绝对不能指向源码路径**（如 `src/index.ts`），否则会触发 TS6059 `rootDir` 错误
+- TypeScript 6+ 已弃用 `baseUrl`，`paths` 中的映射值必须使用相对路径（以 `./` 或 `../` 开头）
 
 ### Vue 组件库类型声明
 

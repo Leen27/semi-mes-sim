@@ -18,9 +18,8 @@
     "composite": false,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@semi/ui": ["../../packages/ui/index.d.ts"],
       "@semi/core": ["../../packages/core/dist/index.d.ts"],
       "@semi/3d-engine": ["../../packages/3d-engine/dist/index.d.ts"]

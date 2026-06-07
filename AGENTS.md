@@ -7,7 +7,7 @@
 
 ## 项目概览
 
-**Semi-MES-Sim** 是一个半导体制造执行系统（MES）的 3D 仿真平台。技术栈：Vue 3 + TypeScript + Babylon.js 7 + Pinia + Vite。
+**Semi-MES-Sim** 是一个半导体制造执行系统（MES）的 3D 仿真平台。技术栈：Vue 3 + TypeScript + Babylon.js 9 + Pinia + Vite。
 
 ## 快速开始
 
@@ -21,7 +21,7 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 ## 硬约束（不可违反）
 
 1. `@semi/core` **必须是纯 TypeScript**，禁止依赖 Vue、Babylon.js 等任何 UI 库
-2. **3D 引擎必须是 Babylon.js 7.x**，不是 Three.js
+2. **3D 引擎必须是 Babylon.js 9.x**，不是 Three.js
 3. **ESLint 10 Flat Config**，lint 脚本格式必须是 `"eslint src"`，禁止 `--ext`
 4. `tsconfig.json` 中的 `paths` **必须指向 `dist/` 或 `index.d.ts`**，禁止指向 `src/`
 5. `@semi/ui` 组件修改后**必须同步更新 `index.d.ts`**

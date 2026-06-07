@@ -20,13 +20,13 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@babylonjs/core": "^7.0.0",
+    "@babylonjs/core": "^9.11.0",
     "@semi/config": "workspace:*",
     "@semi/core": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "vitest": "^1.6.0",
-    "@babylonjs/gui": "^7.0.0"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8",
+    "@babylonjs/gui": "^9.11.0"
   }
 }
