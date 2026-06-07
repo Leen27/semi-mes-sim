@@ -1,0 +1,32 @@
+{
+  "name": "@semi/3d-engine",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Three.js 封装与 3D 资产",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^7.0.0",
+    "@semi/config": "workspace:*",
+    "@semi/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@babylonjs/gui": "^7.0.0"
+  }
+}

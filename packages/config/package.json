@@ -1,0 +1,15 @@
+{
+  "name": "@semi/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "共享配置文件",
+  "main": "./tsconfig.base.json",
+  "files": [
+    "tsconfig.base.json",
+    "eslint.config.shared.js",
+    "vite.config.shared.ts"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist"
+  }
+}

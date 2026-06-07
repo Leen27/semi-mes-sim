@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-06-07",
+  "features": [
+    {
+      "id": "F001",
+      "name": "3D 晶圆厂场景基础框架",
+      "status": "todo",
+      "priority": "high",
+      "domain": "3d-engine",
+      "description": "初始化 Three.js 场景、相机、渲染器、轨道控制器"
+    },
+    {
+      "id": "F002",
+      "name": "MES 核心数据模型",
+      "status": "todo",
+      "priority": "high",
+      "domain": "core",
+      "description": "定义 Lot、Equipment、Recipe、Step 等核心领域类型"
+    },
+    {
+      "id": "F003",
+      "name": "设备 3D 资产与布局",
+      "status": "todo",
+      "priority": "medium",
+      "domain": "3d-engine",
+      "description": "创建光刻机、刻蚀机、薄膜沉积设备等 3D 模型和布局系统"
+    },
+    {
+      "id": "F004",
+      "name": "MES 仿真引擎",
+      "status": "todo",
+      "priority": "high",
+      "domain": "core",
+      "description": "实现基于事件的仿真调度引擎，驱动 3D 动画"
+    },
+    {
+      "id": "F005",
+      "name": "Web 主应用界面",
+      "status": "todo",
+      "priority": "high",
+      "domain": "web",
+      "description": "3D 画布、控制面板、状态看板、时间轴控制"
+    },
+    {
+      "id": "F006",
+      "name": "设备状态可视化",
+      "status": "todo",
+      "priority": "medium",
+      "domain": "3d-engine",
+      "description": "设备运行状态的颜色标识、动画反馈（Idle=绿, Processing=黄, Error=红）"
+    },
+    {
+      "id": "F007",
+      "name": "Lot 流转动画",
+      "status": "todo",
+      "priority": "medium",
+      "domain": "3d-engine",
+      "description": "晶圆批次在设备间移动的动画效果"
+    },
+    {
+      "id": "F008",
+      "name": "仿真控制面板",
+      "status": "todo",
+      "priority": "medium",
+      "domain": "web",
+      "description": "播放/暂停/加速/重置仿真，显示当前仿真时间"
+    },
+    {
+      "id": "F009",
+      "name": "设备详情弹窗",
+      "status": "todo",
+      "priority": "low",
+      "domain": "web",
+      "description": "点击设备显示详细信息：当前 Lot、Recipe、状态历史"
+    },
+    {
+      "id": "F010",
+      "name": "WIP 追踪看板",
+      "status": "todo",
+      "priority": "low",
+      "domain": "web",
+      "description": "实时显示所有在制品的位置和状态"
+    }
+  ]
+}
