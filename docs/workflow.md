@@ -147,7 +147,9 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 
 ---
 
-## 添加新功能的步骤（WIP=1 模式）
+## 添加新功能的步骤（WIP=1 + 三层验证模式）
+
+> 规则来源：Lecture 07 + Lecture 08 + Lecture 09
 
 1. **读取 `feature_list.json`** — 确认当前 `activeFeatureId` 和 `scopeSurface.vcr`
 2. **检查 WIP 限制** — 如果有 `active` 任务，继续完成它；如果没有，选取下一个 `not_started` 任务
@@ -155,13 +157,19 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 4. **标记为 `active`** — 更新 `feature_list.json` 中的 `activeFeatureId` 和该任务状态
 5. **在正确的包和目录中实现代码**
 6. **同步更新文档** — 检查该包 `ARCHITECTURE.md`，如有接口/约束变更必须同步修改
-7. **本地验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
-8. **运行 `make check`**（lint + type-check + test）确保没有副作用
-9. **标记为 `passing`** — 更新 `feature_list.json` 中该任务状态
-10. **更新 `PROGRESS.md`** 和 VCR
-11. **原子提交**：一次 commit 包含代码+测试+文档的完整变更
+7. **Layer 1 验证** — 运行 `pnpm lint` 和 `pnpm type-check`
+8. **Layer 2 验证** — 运行单元测试和构建（`pnpm test` + `pnpm build`）
+9. **Layer 3 验证** — 运行端到端验证（应用启动、关键路径执行）
+10. **功能级验证** — 运行该功能的所有 `completionEvidence.verificationCommand`
+11. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
+12. **标记为 `passing`** — 所有验证通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
+13. **更新 `PROGRESS.md`** 和 VCR
+14. **原子提交**：一次 commit 包含代码+测试+文档的完整变更
 
-> **禁止行为**：不要「顺便」重构不相关的文件。发现 B 也需要改？记下来，等 A 完成后再说。
+> **禁止行为**：
+> - 不要「顺便」重构不相关的文件。发现 B 也需要改？记下来，等 A 完成后再说。
+> - **Layer N 未通过时不得进入 Layer N+1** — lint 失败就不要跑测试，测试失败就不要跑端到端
+> - **核心功能验证通过前禁止重构** — 先让功能通过所有测试，再考虑优化
 
 ---
 

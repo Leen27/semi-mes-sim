@@ -36,6 +36,11 @@
   - **注意**: F005 代码已存在且验证通过，但其依赖 F004（仿真引擎）的事件处理仍是 TODO。这是初始化阶段遗留的技术债务，不影响 F005 自身的完成证据。
 - [x] **F006**: 设备状态可视化 (`3d-engine`)
   - 完成证据: updateEquipmentStatus 函数 ✅ / 颜色映射覆盖 ✅ / lint+type-check+build ✅
+- [x] **三层验证体系建立**（Lecture 09）
+  - `scripts/verify-layers.sh` 脚本（Layer 1 lint/type-check → Layer 2 test/build → Layer 3 artifacts）
+  - EventQueue 单元测试（8 tests）— 发现了排序稳定性问题
+  - SimulationEngine 生命周期测试（12 tests）— **发现了 reset() 未重置 speed 的 bug**
+  - 修复 reset() speed 未重置的问题
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置
@@ -73,8 +78,23 @@
 
 ## 已知问题
 
-1. **F004 processEvent 是 TODO** — `packages/core/src/engine/simulation-engine.ts` 第 136-146 行的事件处理逻辑为空实现。这是仿真引擎的核心行为，需要实现 Lot 分配、加工完成、设备故障等事件处理。
+1. **F004 processEvent 是 TODO** — `packages/core/src/engine/simulation-engine.ts` 第 136-146 行的事件处理逻辑为空实现。需要实现 LotArrival、EquipmentReady、ProcessComplete、EquipmentBreakdown、EquipmentRepair 五种事件的处理逻辑。
 2. **F007 动画系统缺控制功能** — `packages/3d-engine/src/animation/animation-system.ts` 有 `play()` 和 `stop()`，但没有 `pause()`、`setSpeed()`、`reverse()` 方法。
+
+## 验证债务（Lecture 09）
+
+> 验证债务 = passing 的功能中，verificationCommand 以 Layer 1（grep/静态检查）为主的数量。
+
+| Feature | 状态 | Layer 1 | Layer 2 | Layer 3 | 债务 |
+|---------|------|---------|---------|---------|------|
+| F001 | passing | ✅ grep | ⚠️ 无单元测试 | ⚠️ 无端到端 | 中 |
+| F002 | passing | ✅ grep | ✅ 单元测试 | ⚠️ 无端到端 | 低 |
+| F003 | passing | ✅ grep | ⚠️ 无单元测试 | ⚠️ 无端到端 | 中 |
+| F005 | passing | ✅ grep | ⚠️ 无单元测试 | ⚠️ 无端到端 | 中 |
+| F006 | passing | ✅ grep | ⚠️ 无单元测试 | ⚠️ 无端到端 | 中 |
+| F004 | not_started | — | ✅ EventQueue+SimEngine 测试已写 | — | — |
+
+**行动**：F004 完成（含 processEvent + 端到端测试）后，应按优先级为 F001/F003/F005/F006 补充 Layer 2/3 测试。
 
 ## 阻塞项
 

@@ -99,6 +99,7 @@ export class SimulationEngine {
   reset(): void {
     this.pause()
     this.state.currentTime = 0
+    this.state.speed = this.config.initialSpeed ?? 1
     this.state.lots = [...this.config.initialLots]
     this.state.equipments = [...this.config.equipments]
     this.eventQueue.clear()

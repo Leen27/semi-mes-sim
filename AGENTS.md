@@ -42,6 +42,9 @@ make init    # 一键初始化（检查环境 + 安装 + 验证 + 启动）
 18. **Agent 不能直接修改 feature 的 `status` 字段** —— 唯一允许的状态转换路径是：先运行所有 `verificationCommand` → 全部通过 → 才能将 `active` 标记为 `passing`。禁止凭感觉改状态
 19. **Feature list 是唯一真实来源** —— 所有「需要做什么」的信息必须来自 `feature_list.json`。代码中的 TODO 注释必须引用 feature ID（如 `// TODO(F004)`），禁止游离的隐式需求
 20. **Back-pressure 不可忽略** —— `scopeSurface.backPressure.totalPending` > 0 时，项目未完成。Agent 不得提前宣告「项目做完了」
+21. **三层验证全部通过才算完成** —— Layer 1（lint+type-check）→ Layer 2（单元测试+构建）→ Layer 3（端到端/应用启动）。Layer N 未通过前不得进入 Layer N+1
+22. **Agent 不能自行宣布「完成了」** —— 完成判断由 harness 外部化执行。只有 `scripts/verify-layers.sh` 全部通过（或 feature 自身的 `verificationCommand` 全部通过）后，才能标记为 passing
+23. **核心功能验证通过前禁止重构** —— 不要「顺便优化」未验证的代码。先让功能通过所有测试，再考虑重构
 
 ## 目录职责
 

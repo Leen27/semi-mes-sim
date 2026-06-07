@@ -31,7 +31,7 @@
       "dependencies": [],
       "completionEvidence": [
         {
-          "description": "所有核心类型在 TypeScript 中定义完整",
+          "description": "Layer 1: 所有核心类型在 TypeScript 中定义完整",
           "verificationCommand": "grep -q 'export interface Lot' packages/core/src/models/lot.ts && grep -q 'export interface Equipment' packages/core/src/models/equipment.ts && grep -q 'export interface Recipe' packages/core/src/models/recipe.ts && grep -q 'export interface ProcessStep' packages/core/src/models/process-step.ts",
           "evidence": {
             "passedAt": "2026-06-07T16:06:57.611458",
@@ -40,7 +40,7 @@
           }
         },
         {
-          "description": "单元测试覆盖核心枚举值",
+          "description": "Layer 2: 单元测试覆盖核心枚举值",
           "verificationCommand": "cd packages/core && npx vitest run src/models/lot.test.ts",
           "evidence": {
             "passedAt": "2026-06-07T16:06:57.611458",
@@ -49,7 +49,7 @@
           }
         },
         {
-          "description": "lint + type-check + build 全部通过",
+          "description": "Layer 1: lint + type-check + build 全部通过",
           "verificationCommand": "cd packages/core && pnpm lint && pnpm type-check && pnpm build",
           "evidence": {
             "passedAt": "2026-06-07T16:06:57.611458",
@@ -71,16 +71,20 @@
       ],
       "completionEvidence": [
         {
-          "description": "EventQueue 最小堆实现通过测试",
+          "description": "Layer 2: EventQueue 单元测试通过（enqueue/dequeue/peek/isEmpty/clear/FIFO）",
           "verificationCommand": "cd packages/core && npx vitest run src/engine/event-queue.test.ts"
         },
         {
-          "description": "SimulationEngine 完整事件处理逻辑（非 TODO）",
-          "verificationCommand": "grep -v '// TODO' packages/core/src/engine/simulation-engine.ts | grep -q 'processEvent'"
+          "description": "Layer 2: SimulationEngine 生命周期测试通过（start/pause/reset/tick/setSpeed/callbacks）",
+          "verificationCommand": "cd packages/core && npx vitest run src/engine/simulation-engine.test.ts"
         },
         {
-          "description": "仿真引擎单元测试通过（start/pause/reset/tick/setSpeed）",
-          "verificationCommand": "cd packages/core && npx vitest run src/engine/simulation-engine.test.ts"
+          "description": "Layer 1: processEvent 实现所有事件类型处理逻辑（无 TODO）",
+          "verificationCommand": "grep -v \"// TODO(F004)\" packages/core/src/engine/simulation-engine.ts | grep -q \"processEvent\""
+        },
+        {
+          "description": "Layer 3: 端到端仿真测试（Lot 可在设备间流转）",
+          "verificationCommand": "cd packages/core && npx vitest run src/engine/simulation-end-to-end.test.ts"
         }
       ]
     },
