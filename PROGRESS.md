@@ -9,8 +9,8 @@
 
 ## 当前状态
 
-- **最新 commit**: `HEAD`（Lecture 11 可观测性基础设施引入）
-- **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅ / observability ✅
+- **最新 commit**: `HEAD`（Lecture 12 干净状态检查引入）
+- **验证状态**: lint ✅ / type-check ✅ / test ✅ / architecture ✅ / e2e ✅ / observability ✅ / clean-state ✅
 - **活跃分支**: `main`
 - **VCR（验证完成率）**: 5/5 = 100%
 - **Back-Pressure（剩余压力）**: 5/10 = 50%（5 not_started / 10 total）
@@ -53,6 +53,14 @@
   - `scripts/evaluate-feature.sh`：基于 Rubric 的结构化评分工具
   - `verify-layers.sh` 自动集成 trace 记录（每层结果、耗时、错误）
   - ADR-010 记录决策
+- [x] **干净状态检查与定期清理**（Lecture 12）
+  - `scripts/session-exit-check.sh`：五维度干净状态检查（构建/测试/进度/产物/启动）
+  - `scripts/session-cleanup.sh`：幂等清理脚本（临时文件、debug 代码、空目录、过期 trace）
+  - `docs/quality.md`：模块质量追踪文档（core=A, 3d-engine=C, ui=C, web=C, infra=A）
+  - Clock Out 流程扩展为五维度检查清单
+  - 双模式清理策略：即时清理（每次会话）+ 定期清理（每月第一周）
+  - Harness 简化机制：每月审视一个组件，验证是否可被模型自主替代
+  - ADR-011 记录决策
 - [x] 项目脚手架与 Monorepo 结构
 - [x] ESLint 10 Flat Config 配置
 - [x] TypeScript Workspace 路径配置

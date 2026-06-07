@@ -168,13 +168,16 @@ not_started --[agent picks task]--> active --[run verificationCommand]--> ?
 15. **全局验证** — 运行 `scripts/verify-layers.sh` 确保没有副作用
 16. **标记为 `passing`** — 所有验证和评分通过后，更新 `feature_list.json`，记录 `evidence.passedAt` 和 `evidence.output`
 17. **Finalize Task Trace** — `bash scripts/harness-trace.sh finalize`
-18. **更新 `PROGRESS.md`** 和 VCR
-19. **原子提交**：一次 commit 包含代码+测试+文档+trace 的完整变更
+18. **运行幂等清理** — `bash scripts/session-cleanup.sh`
+19. **运行会话退出检查** — `bash scripts/session-exit-check.sh <featureId>`，确认五维度全部通过
+20. **更新 `PROGRESS.md`** 和 VCR
+21. **原子提交**：一次 commit 包含代码+测试+文档+trace 的完整变更
 
 > **禁止行为**：
 > - 不要「顺便」重构不相关的文件。发现 B 也需要改？记下来，等 A 完成后再说。
 > - **Layer N 未通过时不得进入 Layer N+1** — lint 失败就不要跑测试，测试失败就不要跑端到端
 > - **核心功能验证通过前禁止重构** — 先让功能通过所有测试，再考虑优化
+> - **"稍后清理"等于永不清理** — 不要在会话结束时跳过 cleanup 和 exit-check
 
 ---
 
@@ -340,6 +343,52 @@ bash scripts/harness-trace.sh finalize
 2. **日志格式不一致** — 不同会话使用不同格式，无法系统分析
 3. **过程可观测性无法通过日志解决** — Sprint Contract 和 Rubric 是需要 harness 支持的结构化产物
 
+## 定期清理循环与 Harness 简化（Lecture 12）
+
+> 规则来源：Lecture 12 — Technical debt is a high-interest loan. Continuously paying it off in small increments is almost always better than letting it accumulate into one massive payoff event.
+
+### 双模式清理策略
+
+**即时清理（每次会话结束时）**：
+- 运行 `scripts/session-cleanup.sh` — 删除临时产物、扫描 debug 代码、清理空目录
+- 运行 `scripts/session-exit-check.sh` — 五维度干净状态检查
+- 更新 `feature_list.json`、`PROGRESS.md`、`docs/quality.md`
+
+**定期清理（每月第一周）**：
+- 全量审查 `docs/quality.md`，更新各模块质量评级
+- 运行全量 `scripts/verify-layers.sh` 检测累积的架构漂移
+- 检查是否有可移除的过时约束（见下方 Harness 简化）
+- 审查 `DECISIONS.md` 中的 ADR，标记已过时或已被取代的决策
+
+### Harness 简化机制
+
+> **原则**：每个 harness 组件存在是因为模型当时无法可靠自主完成某件事。但随着模型能力提升，这些假设会过时。
+
+**简化流程（每月执行一次）**：
+
+1. 选择一个 harness 组件（如某个 lint 规则、某个强制检查步骤）
+2. 临时禁用或放宽该组件
+3. 运行基准任务集（benchmark tasks）
+4. 比较结果：
+   - **未退化** → 永久移除该组件
+   - **退化** → 恢复组件，或替换为更轻量的替代方案
+
+**当前项目中值得定期审视的组件**：
+
+| 组件 | 引入原因 | 可能的简化方向 |
+|------|----------|---------------|
+| `verify-architecture.sh` Rule 6 | 防止 3D 对象缺失 name | 模型已能稳定遵守 → 可降为 warning |
+| `verify-layers.sh` Layer 3e | 验证跨组件符号存在 | 随着 E2E 测试完善，可逐步替代 |
+| `harness-trace.sh` | 记录会话决策路径 | 模型长上下文能力提升后，可能减少细节记录 |
+
+### 质量文档维护
+
+`docs/quality.md` 不是一次性评估，而是**持续追踪器**：
+
+- **每次功能 passing 时**：更新对应模块的质量评级
+- **每月第一周**：全量审查，识别质量下降的模块
+- **行动优先级**：总是先修复评级最低的模块，防止「破窗效应」
+
 ## 遇到问题的处理
 
 - 如果架构约束阻止你实现功能，**不要绕过约束**
@@ -383,15 +432,30 @@ bash scripts/harness-trace.sh finalize
 - [ ] 运行 `make check` 确认仓库自洽
 - [ ] 从 `active` 任务继续执行，或按 WIP=1 规则选取下一个任务
 
-**Clock Out（会话结束）**：
-- [ ] 更新 `feature_list.json`（任务状态、已完成证据、activeFeatureId）
-- [ ] 更新 `PROGRESS.md`（进度、测试状态、已知问题、阻塞项、VCR）
-- [ ] 如有新决策，追加到 `DECISIONS.md`
-- [ ] **确保 Task Trace 已 finalize**（运行 `scripts/harness-trace.sh finalize`）
-- [ ] 运行 `make check` 确认自洽状态
-- [ ] 原子提交所有已完成工作（包含代码 + 测试 + 文档 + trace）
+**Clock Out（会话结束）—— 五维度干净状态检查**：
 
-> **判定标准**：如果任务预计消耗超过 60% 的上下文窗口，立即开始准备 handoff（更新 PROGRESS.md、做原子提交）。不要等上下文耗尽才匆忙收尾。
+> 规则来源：Lecture 12 — Clean state is a necessary condition for session completion.
+
+- [ ] **维度 1: 构建通过** — `make build` 通过，无编译错误
+- [ ] **维度 2: 测试通过** — `make test` 通过，包括已有测试不被破坏
+- [ ] **维度 3: 进度已记录**
+  - [ ] 更新 `feature_list.json`（任务状态、已完成证据、activeFeatureId）
+  - [ ] 更新 `PROGRESS.md`（进度、测试状态、已知问题、阻塞项、VCR）
+  - [ ] 如有新决策，追加到 `DECISIONS.md`
+  - [ ] 如模块质量有变化，更新 `docs/quality.md`
+- [ ] **维度 4: 无陈旧产物** — 运行 `scripts/session-cleanup.sh`，确认：
+  - [ ] 无 *.tmp / *.log / *.bak 文件
+  - [ ] 无 debug console.log / debugger 语句（非测试代码中）
+  - [ ] 无未跟踪的空目录
+  - [ ] 无应被删除的 TODO(Fxxx)（已完成功能的 TODO 必须删除）
+- [ ] **维度 5: 启动路径可用** — `make check` 通过，下一会话可直接开始工作
+- [ ] **确保 Task Trace 已 finalize** — `bash scripts/harness-trace.sh finalize`
+- [ ] **运行会话退出检查** — `bash scripts/session-exit-check.sh [feature-id]`
+- [ ] **原子提交所有已完成工作**（包含代码 + 测试 + 文档 + trace）
+
+> **判定标准**：如果任务预计消耗超过 60% 的上下文窗口，立即开始准备 handoff（更新 PROGRESS.md、做原子提交、运行 cleanup）。不要等上下文耗尽才匆忙收尾。
+> 
+> **"稍后清理"等于永不清理。**  entropy growth is the default state; only active cleanup counteracts it.
 
 ---
 
