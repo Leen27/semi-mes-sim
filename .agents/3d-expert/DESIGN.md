@@ -313,20 +313,20 @@ class AnimationOrchestrator {
 
 ### 4.5 TransportSystem
 
+> **类型来源**: `TransportVehicle`、`TransportPath`、`VehicleStatus` 由 `@semi/core` 定义。
+> 3D 专家只导入这些类型。
+
 ```typescript
-interface TransportVehicle {
-  id: string
-  type: 'oht' | 'agv' | 'manual'
-  currentPathId?: string
-  pathPosition: number
-  carryingLotId?: string
-  status: 'idle' | 'moving' | 'loading' | 'unloading'
-}
+import type {
+  TransportPath,
+  TransportVehicle,
+  VehicleStatus
+} from '@semi/core'
 
 class TransportSystem {
-  addPath(config: TransportPathConfig): void
+  addPath(path: TransportPath): void
   removePath(id: string): void
-  addVehicle(pathId: string, config: TransportVehicleConfig): string
+  addVehicle(pathId: string, vehicle: TransportVehicle): string
   removeVehicle(id: string): void
   moveVehicle(vehicleId: string, toPathPosition: number): Promise<void>
   loadLot(vehicleId: string, lotId: string): void
@@ -338,85 +338,172 @@ class TransportSystem {
 
 ## 5. JSON 配置格式
 
-### 5.1 完整配置结构
+> **⚠️ 架构边界声明**
+>
+> 以下所有**业务配置类型**（FabLayoutConfig、EquipmentConfig、BufferConfig 等）
+> **必须由 `@mes-expert` 在 `packages/core` 中定义**。
+>
+> `@3d-expert` **禁止**在 `packages/3d-engine` 中定义这些类型。
+> 3D 专家只能：
+> 1. **导入** `@semi/core` 导出的配置类型
+> 2. 定义 **3D 场景特有的覆盖配置**（camera、light、fog、grid 等）
+> 3. 定义 **视觉覆盖配置**（颜色映射、透明度等）
+>
+> 这是为了保证业务数据结构的单一来源，避免类型不一致。
+
+### 5.1 配置来源关系
+
+```
+业务配置（@semi/core 定义）          3D 覆盖配置（@3d-expert 定义）
+├─ FabLayoutConfig                    ├─ Scene3DConfig
+│  ├─ FabConfig                       │  ├─ backgroundColor
+│  ├─ WorkAreaConfig                  │  ├─ fog
+│  │  ├─ EquipmentConfig              │  ├─ lighting
+│  │  ├─ BufferConfig                 │  ├─ grid
+│  │  ├─ TransportPathConfig          │  └─ camera
+│  ├─ StockerConfig                   │
+│  └─ MESSystemConfig                 └─ VisualOverride
+│                                      ├─ equipmentColors
+├─ ProcessConfig                       ├─ statusColors
+│  ├─ RecipeConfig                     └─ workAreaOpacity
+│  └─ ProcessRouteConfig
+│
+└─ SimulationRuntimeConfig
+   ├─ InitialLotConfig
+   └─ FaultInjectionConfig
+```
+
+### 5.2 3D 场景配置类型
 
 ```typescript
-interface SceneConfig {
-  version: string
-  fab: FabConfig
-  workAreas: WorkAreaConfig[]
-  stockers?: StockerConfig[]
-  mesSystems: MESSystemConfig[]
-  layerCycle?: LayerCycleConfig
-  environment?: EnvironmentConfig
-}
+// ===== 从 @semi/core 导入的业务配置 =====
+// 这些类型由 @mes-expert 定义和维护
+import type {
+  FabLayoutConfig,
+  FabConfig,
+  WorkAreaConfig,
+  EquipmentConfig,
+  BufferConfig,
+  StockerConfig,
+  TransportPathConfig,
+  MESSystemConfig,
+  ProcessConfig,
+  RecipeConfig,
+  ProcessRouteConfig,
+  SimulationRuntimeConfig,
+  LayerCycleConfig,
+  // 领域模型类型
+  EquipmentType,
+  EquipmentStatus,
+  LotStatus,
+  BufferType,
+  TransportType,
+  VehicleStatus,
+  ControlState,
+  ProcessState,
+  FaultCategory,
+  FaultSeverity,
+  // 统计类型
+  OEEMetrics,
+  WIPStatistics,
+  // 仿真类型
+  SimulationState,
+  SimulationEvent,
+  EventType,
+  DispatchDecision
+} from '@semi/core'
 
-interface WorkAreaConfig {
-  id: string
-  name: string
-  type: string
-  position: { x: number; z: number }
-  size: { width: number; depth: number }
-  color?: string
-  equipmentGroups: EquipmentGroupConfig[]
-  buffers?: BufferConfig[]
-  transportPaths?: TransportPathConfig[]
-}
+// ===== 3D 专家定义的 3D 场景覆盖配置 =====
+// 这些配置只影响渲染，不影响业务逻辑
 
-interface EquipmentConfig {
-  id: string
-  type: EquipmentType
-  position: { x: number; z: number }
-  orientation?: number
-  inputBank?: string
-  outputBank?: string
-}
-
-interface BufferConfig {
-  id: string
-  name: string
-  type: 'input' | 'output' | 'intermediate'
-  position: { x: number; z: number }
-  capacity: number
-  associatedEquipment?: string
-}
-
-interface StockerConfig {
-  id: string
-  name: string
-  position: { x: number; z: number }
-  capacity: number
-  levels: number
-  servesAreas: string[]
-}
-
-interface TransportPathConfig {
-  id: string
-  points: Array<{ x: number; z: number }>
-  type: 'amhs' | 'agv' | 'manual' | 'conveyor'
-  speed: number
-  vehicles?: number
-}
-
-interface LayerCycleConfig {
-  enabled: boolean
-  totalLayers: number
-  baseProcess: string[]
-  indicatorPosition: { x: number; y: number; z: number }
-}
-
-interface MESSystemConfig {
-  id: string
-  type: 'central' | 'distributed'
-  position: { x: number; y: number; z: number }
-  visualization: {
-    eventQueue: EventQueueVizConfig
-    wipBoard: WIPVizConfig
-    schedulerViz: SchedulerVizConfig
-    oeeDashboard: OEEDashboardConfig
-    faultInjection: FaultInjectionConfig
-    dataFlow: DataFlowConfig
+interface Scene3DConfig {
+  /** 背景色（hex 或 rgba） */
+  backgroundColor?: string
+  /** 雾效配置 */
+  fog?: {
+    enabled: boolean
+    density: number
+    color: string
   }
+  /** 灯光配置 */
+  lighting?: {
+    ambientIntensity: number
+    directionalIntensity: number
+    shadows: boolean
+    shadowMapSize: number
+  }
+  /** 地面网格配置 */
+  grid?: {
+    enabled: boolean
+    size: number
+    divisions: number
+    color: string
+  }
+  /** 初始相机位置（可选覆盖业务配置中的位置） */
+  camera?: {
+    alpha: number
+    beta: number
+    radius: number
+    target: { x: number; y: number; z: number }
+  }
+}
+
+/** 视觉覆盖配置：允许在运行时动态调整视觉表现 */
+interface VisualOverride {
+  /** 设备类型默认颜色映射 */
+  equipmentColors?: Partial<Record<EquipmentType, string>>
+  /** 设备状态颜色映射 */
+  statusColors?: Partial<Record<EquipmentStatus, string>>
+  /** 区域边界透明度（0-1） */
+  workAreaOpacity?: number
+  /** Buffer 容量条颜色映射 */
+  bufferFillColors?: {
+    empty: string
+    half: string
+    full: string
+  }
+}
+
+// ===== 3D 专家定义的完整场景配置 =====
+// 由业务配置 + 3D 覆盖配置组合而成
+
+interface SceneConfig {
+  /** 业务配置：工厂布局（必须，由 @semi/core 定义） */
+  layout: FabLayoutConfig
+  /** 业务配置：工艺配方（可选） */
+  process?: ProcessConfig
+  /** 业务配置：仿真运行时参数（可选） */
+  simulation?: SimulationRuntimeConfig
+  /** 3D 特有：场景渲染配置（可选，默认提供） */
+  scene3d?: Scene3DConfig
+  /** 3D 特有：视觉覆盖配置（可选） */
+  visual?: VisualOverride
+}
+
+// ===== 3D 专家内部使用的辅助类型 =====
+// 这些类型只在 3d-engine 内部使用，不对外导出
+
+interface AssetConfig {
+  id: string
+  type: string
+  position: Vector3
+  size?: { width: number; depth: number; height?: number }
+  color?: Color3 | Color4
+  label?: string
+  metadata?: Record<string, unknown>
+}
+
+interface SceneNode {
+  id: string
+  name: string
+  type: 'fab' | 'workArea' | 'equipmentGroup' | 'equipment' 
+       | 'buffer' | 'stocker' | 'inputBank' | 'outputBank'
+       | 'transportPath' | 'transportVehicle'
+       | 'mesSystem' | 'lot' | 'layerCycle'
+  mesh: TransformNode
+  parent?: SceneNode
+  children: SceneNode[]
+  metadata: Record<string, unknown>
 }
 ```
 
@@ -520,8 +607,9 @@ packages/3d-engine/src/
 │   └── transport-system.ts       # 新增：传输系统管理
 ├── perf/
 │   └── performance-profiler.ts   # 新增：性能分析器
-├── config/
-│   └── scene-config.ts           # 新增：配置类型定义 + Schema
+# ❌ 3D 专家不创建 config/ 目录
+# 业务配置类型（FabLayoutConfig 等）由 @semi/core 定义并导出
+# 3D 专家通过 import type { ... } from '@semi/core' 消费
 └── index.ts                      # 更新：导出所有公共 API
 ```
 

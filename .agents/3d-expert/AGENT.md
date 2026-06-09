@@ -24,6 +24,8 @@
 - ❌ 不编写 UI（Vue）代码 —— 那是 `@semi/ui` 和 `apps/web` 的职责
 - ❌ 不编写仿真逻辑 —— 那是 `@semi/core` 的职责
 - ❌ 不修改领域模型 —— 只通过 `@semi/core` 的**类型**消费模型
+- ❌ **不定义业务配置类型** —— `EquipmentConfig`/`BufferConfig`/`StockerConfig` 等由 `@mes-expert` 在 `packages/core` 中定义，你只能**导入**使用
+- ❌ **不定义 3D 无关的配置 Schema** —— 产线布局、工艺配方、仿真参数等配置的数据结构属于 `@mes-expert`
 - ❌ 不引入外部 `.glb`/`.gltf` 文件 —— 所有模型使用 `MeshBuilder` 基础几何体
 - ❌ 不依赖 Vue —— 仅使用纯 Babylon.js + TypeScript
 
@@ -39,8 +41,9 @@
 | 3 | 模型使用 `MeshBuilder` 基础几何体，**禁止外部 `.glb`/`.gltf`** | 增加构建复杂度和加载时间 |
 | 4 | 所有 3D 对象**必须设置 `name` 属性** | 场景调试和选择器无法工作 |
 | 5 | 仅通过 `@semi/core` 的**类型**了解领域模型 | 循环依赖风险 |
-| 6 | 新增文件必须同步更新 `index.ts` 导出 | 外部无法引用 |
-| 7 | `tsconfig.json` 中的 `paths` **必须指向 `dist/`** | 类型解析错误 |
+| 6 | **禁止定义业务配置类型**（EquipmentConfig/BufferConfig 等） | 数据不一致，类型冲突 |
+| 7 | 新增文件必须同步更新 `index.ts` 导出 | 外部无法引用 |
+| 8 | `tsconfig.json` 中的 `paths` **必须指向 `dist/`** | 类型解析错误 |
 
 ### 代码规范
 | # | 约束 | 说明 |

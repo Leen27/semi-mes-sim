@@ -85,38 +85,46 @@ verification:
 status: pending
 ```
 
-### T003 — SceneBuilder 配置解析与验证
+### T003 — SceneBuilder 配置解析与场景构建
 ```yaml
-name: SceneBuilder JSON 配置解析器
+name: SceneBuilder 场景构建器
 description: |
-  实现 SceneBuilder 类，解析 SceneConfig JSON 并调用 AssetFactory 创建场景。
-  包含配置验证和默认值填充。
+  实现 SceneBuilder 类，消费 @semi/core 定义的 FabLayoutConfig，调用 AssetFactory 创建 3D 场景。
+  
+  ⚠️ 重要：SceneBuilder **不定义**业务配置类型（EquipmentConfig/BufferConfig 等）。
+  这些类型由 @mes-expert 在 packages/core 中定义并导出。
+  SceneBuilder 只导入并使用这些类型。
 scope:
   do:
-    - 定义完整的 SceneConfig 类型接口（含所有子配置类型）
-    - 实现 validateSceneConfig() 验证函数
+    - 导入 @semi/core 的配置类型（FabLayoutConfig, EquipmentConfig, BufferConfig 等）
+    - 定义 Scene3DConfig 接口（3D 场景特有配置：camera, light, fog, grid）
+    - 定义 VisualOverride 接口（视觉覆盖配置）
+    - 定义 SceneConfig 接口（业务配置 + 3D 覆盖配置的组合）
     - 实现 SceneBuilder.build() 方法
-    - 实现 SceneBuilder.updateWorkArea() 增量更新
-    - 配置 Schema 验证（必需字段、类型检查）
-    - 友好的错误信息（指出哪个字段有问题）
+    - 实现 SceneBuilder.buildFromLayout() 方法（只传入业务配置，使用默认 3D 参数）
+    - 实现增量更新方法（updateWorkArea, updateEquipment, updateBuffer）
+    - 3D 配置默认值填充
   dont:
-    - 不创建具体的资产（调用 AssetFactory.create 即可）
-    - 不处理运行时数据同步（那是 EntityManager 的职责）
+    - ❌ 不定义业务配置类型（EquipmentConfig, BufferConfig, StockerConfig 等）
+    - ❌ 不实现业务配置验证（那是 @mes-expert 的职责）
+    - ❌ 不创建具体的资产（调用 AssetFactory.create 即可）
+    - ❌ 不处理运行时数据同步（那是 EntityManager 的职责）
 files:
   - src/scene/scene-builder.ts
   - src/scene/scene-builder.test.ts
-  - src/config/scene-config.ts  # 类型定义
+  # ❌ 删除: src/config/scene-config.ts — 业务配置类型由 @semi/core 定义
 dependencies:
   - T001  # SceneGraph
   - T002  # AssetFactory
+  - @semi/core  # 业务配置类型（FabLayoutConfig 等）
 verification:
   - cmd: cd packages/3d-engine && pnpm lint && pnpm type-check
   - cmd: cd packages/3d-engine && npx vitest run src/scene/scene-builder.test.ts
     check:
-      - 可以解析有效的 SceneConfig
+      - 可以导入 @semi/core 的 FabLayoutConfig
+      - build() 能解析 SceneConfig（业务配置 + 3D 配置）
+      - buildFromLayout() 只接收业务配置也能工作
       - 无效配置抛出明确错误
-      - 默认值正确填充
-      - 增量更新正确修改场景
       - 生成的 SceneGraph 包含预期的节点
 status: pending
 ```
